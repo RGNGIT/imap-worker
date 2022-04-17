@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@types/imap": "^0.8.35",
+    "base64-stream": "^1.0.0",
+    "dotenv": "^16.0.0",
+    "imap": "^0.8.19",
+    "js-base64": "^3.7.2",
+    "node-imap": "^0.9.6"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.24"
+  }
+}
