@@ -13,17 +13,15 @@ class FileProcessor {
             msg.on('body', (stream, info) => {
                 let base64String = '';
                 stream.on('data', (chunk) => {
-                    base64String += chunk.toString();
+                    base64String += chunk.toString('utf8');
                 });
                 stream.on('end', () => {
                     fs.writeFileSync(`./Files/${filename}`, base64.atob(base64String));
                 });
             });
-            /*
             msg.once('end', () => {
-
+                console.log(`'${filename}' saved.`)
             });
-            */
         }
     }
     spawnFileParser() {

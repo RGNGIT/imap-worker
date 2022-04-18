@@ -1,4 +1,5 @@
 import FileProcessor from "./fileProcessor";
+const ImapLib = require('imap');
 
 function toUpper(thing) {
     return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
@@ -18,37 +19,31 @@ function findAttachmentParts(struct, attachments) {
     return attachments;
 }
 
+const subjs = ['Sample'];
+
 export default(Emails, Imap) => {
     Emails.on('message', (msg, seqno) => {
-        console.log(`Processing msg ${seqno}`);
-        const prefix = `(#${seqno}) `;
-        let date,
-            from;
-        /*
+        console.log(`Processing email ${seqno}...`);
+        const prefix = `(#${seqno})`;
         msg.on('body', (stream, info) => {
-            let buffer = '';
             stream.on('data', (chunk) => {
-                buffer += chunk.toString('utf-8');
+                const emailData = ImapLib.parseHeader(chunk.toString('utf8'));
+                if(subjs.includes(emailData.subject[0])) {
+                    console.log(`Email ${prefix} accepted (Subj: '${emailData.subject[0]}')`);
+                    msg.once('attributes', (attributes) => {
+                        let attachments = findAttachmentParts(attributes.struct, []);
+                        for (let i = 0, len = attachments.length; i < len; i++) {
+                            let atts = Imap.fetch(attributes.uid, {
+                                bodies: [attachments[i].partID],
+                                struct: true
+                            });
+                            atts.on('message', FileProcessor.writeAttachment(attachments[i]));
+                        }
+                    });
+                } else {
+                    console.log(`Email ${prefix} rejected (Subj: '${emailData.subject[0]}')`);
+                }
             });
-            stream.once('end', () => {
-                /*
-                const parsedHeader = Imap.parseHeader(buffer);
-                console.log(prefix + 'Parsed header: %s', parsedHeader);
-                from = parsedHeader.from[0];
-                date = parsedHeader.date[0];
-                console.log(`Email from ${from} with date ${date}`);
-            });
-        });
-        */
-        msg.once('attributes', (attributes) => {
-            let attachments = findAttachmentParts(attributes.struct, []);
-            for (let i = 0, len = attachments.length; i < len; i++) {
-                let atts = Imap.fetch(attributes.uid, {
-                    bodies: [attachments[i].partID],
-                    struct: true
-                });
-                atts.on('message', FileProcessor.writeAttachment(attachments[i]));
-            }
         });
         msg.once('end', () => {
             console.log(`Finished processing email ${prefix}`);
