@@ -1,26 +1,29 @@
 import FileProcessor from "./fileProcessor";
 
-function toUpper(thing) { return thing && thing.toUpperCase ? thing.toUpperCase() : thing;}
+function toUpper(thing) {
+    return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
+}
 
 function findAttachmentParts(struct, attachments) {
-    attachments = attachments ||  [];
-    for (var i = 0, len = struct.length, r; i < len; ++i) {
-      if (Array.isArray(struct[i])) {
-        findAttachmentParts(struct[i], attachments);
-      } else {
-        if (struct[i].disposition && ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) > -1) {
-          attachments.push(struct[i]);
+    attachments = attachments || [];
+    for (var i = 0, len = struct.length; i < len; ++ i) {
+        if (Array.isArray(struct[i])) {
+            findAttachmentParts(struct[i], attachments);
+        } else {
+            if (struct[i].disposition && ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) > -1) {
+                attachments.push(struct[i]);
+            }
         }
-      }
     }
     return attachments;
 }
-  
-export default (Emails, Imap) => {
+
+export default(Emails, Imap) => {
     Emails.on('message', (msg, seqno) => {
         console.log(`Processing msg ${seqno}`);
         const prefix = `(#${seqno}) `;
-        let date, from;
+        let date,
+            from;
         /*
         msg.on('body', (stream, info) => {
             let buffer = '';
@@ -39,7 +42,7 @@ export default (Emails, Imap) => {
         */
         msg.once('attributes', (attributes) => {
             let attachments = findAttachmentParts(attributes.struct, []);
-            for(let i = 0, len = attachments.length; i < len; i++) {
+            for (let i = 0, len = attachments.length; i < len; i++) {
                 let atts = Imap.fetch(attributes.uid, {
                     bodies: [attachments[i].partID],
                     struct: true
@@ -49,6 +52,9 @@ export default (Emails, Imap) => {
         });
         msg.once('end', () => {
             console.log(`Finished processing email ${prefix}`);
+        });
+        Emails.on('end', () => {
+            Imap.end();
         });
         Emails.once('error', (err) => {
             console.log(err);

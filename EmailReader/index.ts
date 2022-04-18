@@ -7,13 +7,13 @@ const start = () => {
         ImapProcessor(imap);
         console.log("Successfully set up IMAP!");
     });
-    imap.once('error', function(err) {
+    imap.once('error', function (err) {
         console.log(`Server Error:- ${err}`);
     });
-    imap.once('end', function() {
+    imap.once('end', function () {
         console.log('Connection terminated.');
-    });      
+    });
     imap.connect();
-}
+} 
 
 start();
