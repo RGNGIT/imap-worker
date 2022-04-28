@@ -27,8 +27,9 @@ export default(Emails, Imap) => {
         const prefix = `(#${seqno})`;
         msg.on('body', (stream, info) => {
             stream.on('data', (chunk) => {
+                console.log(chunk.toString('ascii'));
                 const emailData = ImapLib.parseHeader(chunk.toString('utf8'));
-                if(subjs.includes(emailData.subject[0])) {
+                //if(subjs.includes(emailData.subject[0])) {
                     console.log(`Email ${prefix} accepted (Subj: '${emailData.subject[0]}')`);
                     msg.once('attributes', (attributes) => {
                         let attachments = findAttachmentParts(attributes.struct, []);
@@ -40,9 +41,9 @@ export default(Emails, Imap) => {
                             atts.on('message', FileProcessor.writeAttachment(attachments[i]));
                         }
                     });
-                } else {
-                    console.log(`Email ${prefix} rejected (Subj: '${emailData.subject[0]}')`);
-                }
+                //} else {
+                //    console.log(`Email ${prefix} rejected (Subj: '${emailData.subject[0]}')`);
+                //}
             });
         });
         msg.once('end', () => {
