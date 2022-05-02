@@ -5,6 +5,7 @@
     "dotenv": "^16.0.0",
     "imap": "^0.8.19",
     "js-base64": "^3.7.2",
+    "mailparser": "^3.5.0",
     "node-imap": "^0.9.6"
   },
   "devDependencies": {

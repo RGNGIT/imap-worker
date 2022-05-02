@@ -2,9 +2,9 @@ import emailParser from "./emailParser";
 
 export default(Imap) => {
     Imap.search(['UNSEEN'], (err, results) => {
-        if (err) 
+        if (err) {
             throw err;
-        
+        } 
         if (!results.length) {
             console.log("No unprocessed emails found. Terminating...");
             Imap.end();
@@ -13,8 +13,7 @@ export default(Imap) => {
                 results.length
             } unprocessed emails`);
             const emails = Imap.fetch(results, {
-                bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)'],
-                struct: true,
+                bodies: [''/*'HEADER.FIELDS (FROM TO SUBJECT DATE)'*/],
                 markSeen: false // TODO: Mark as seen
             });
             emailParser(emails, Imap);

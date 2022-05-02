@@ -1,23 +1,6 @@
 import FileProcessor from "./fileProcessor";
 const ImapLib = require('imap');
-
-function toUpper(thing) {
-    return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
-}
-
-function findAttachmentParts(struct, attachments) {
-    attachments = attachments || [];
-    for (var i = 0, len = struct.length; i < len; ++ i) {
-        if (Array.isArray(struct[i])) {
-            findAttachmentParts(struct[i], attachments);
-        } else {
-            if (struct[i].disposition && ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) > -1) {
-                attachments.push(struct[i]);
-            }
-        }
-    }
-    return attachments;
-}
+import {MailParser} from 'mailparser';
 
 const subjs = ['Sample'];
 
@@ -25,26 +8,14 @@ export default(Emails, Imap) => {
     Emails.on('message', (msg, seqno) => {
         console.log(`Processing email ${seqno}...`);
         const prefix = `(#${seqno})`;
+        const parser = new MailParser({streamAttachments: true});
         msg.on('body', (stream, info) => {
-            stream.on('data', (chunk) => {
-                console.log(chunk.toString('ascii'));
-                const emailData = ImapLib.parseHeader(chunk.toString('utf8'));
-                //if(subjs.includes(emailData.subject[0])) {
-                    console.log(`Email ${prefix} accepted (Subj: '${emailData.subject[0]}')`);
-                    msg.once('attributes', (attributes) => {
-                        let attachments = findAttachmentParts(attributes.struct, []);
-                        for (let i = 0, len = attachments.length; i < len; i++) {
-                            let atts = Imap.fetch(attributes.uid, {
-                                bodies: [attachments[i].partID],
-                                struct: true
-                            });
-                            atts.on('message', FileProcessor.writeAttachment(attachments[i]));
-                        }
-                    });
-                //} else {
-                //    console.log(`Email ${prefix} rejected (Subj: '${emailData.subject[0]}')`);
-                //}
-            });
+            stream.pipe(parser);
+        });
+        parser.on('data', function (data) {
+            if(data.type === 'attachment') {
+                FileProcessor.writeAttachment(data);
+            }
         });
         msg.once('end', () => {
             console.log(`Finished processing email ${prefix}`);
