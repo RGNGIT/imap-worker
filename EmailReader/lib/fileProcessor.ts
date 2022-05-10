@@ -1,13 +1,28 @@
 import fs from 'fs';
-let base64 = require('js-base64');
+import config from '../config';
+import unzipper from 'unzipper';
+
+const {
+    misc: {
+        compressedExts,
+        filePath
+    }
+} = config;
 
 class FileProcessor {
     writeAttachment(data) {
-        const writeStream = fs.createWriteStream(`./Files/${data.filename}`);
+        if(!this.isZip(data.filename)) {
+        const writeStream = fs.createWriteStream(`${filePath}/${data.filename}`);
         data.content.pipe(writeStream);
+        writeStream.destroy();
+        } else {
+            data.content.pipe(unzipper.Extract({path: `${filePath}`}));
+        }
     }
-    spawnFileParser() {
-
+    isZip(name) {
+        const extSplit = name.split('.');
+        const extension = extSplit[extSplit.length - 1];
+        return compressedExts.includes(extension);
     }
 }
 

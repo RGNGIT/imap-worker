@@ -1,7 +1,11 @@
+import {CronJob} from 'cron';
 import ImapInstanse from "./imap";
 import ImapProcessor from "./lib/imapProcessor";
+import config from './config';
 
-const start = () => {
+const {misc: {cronTime}} = config;
+
+const job = new CronJob(cronTime, () => {
     const imap = ImapInstanse;
     imap.once('ready', () => {
         ImapProcessor(imap);
@@ -14,6 +18,6 @@ const start = () => {
         console.log('Connection terminated.');
     });
     imap.connect();
-} 
+});
 
-start();
+job.start();
