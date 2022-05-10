@@ -10,6 +10,7 @@
     "mailparser": "^3.5.0",
     "mysql2": "^2.3.3",
     "node-imap": "^0.9.6",
+    "pg": "^8.7.3",
     "sequelize": "^6.19.0",
     "unzipper": "^0.10.11"
   },

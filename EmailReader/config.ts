@@ -7,7 +7,12 @@ const {
     IMAP_PORT,
     IMAP_TLS,
     FILE_PATH,
-    CRON_TIME
+    CRON_TIME,
+    DB_PAYMENTS_NAME,
+    DB_PAYMENTS_HOST,
+    DB_PAYMENTS_SCHEMA,
+    DB_PAYMENTS_USERNAME,
+    DB_PAYMENTS_PASSWORD
 } = process.env;
 
 const compressedExts = ['zip'];
@@ -15,7 +20,11 @@ const skipMimes = ['image'];
 
 export default {
     sequelizeConfig: {
-        
+        database: DB_PAYMENTS_NAME,
+        host: DB_PAYMENTS_HOST,
+        dbSchema: DB_PAYMENTS_SCHEMA,
+        username: DB_PAYMENTS_USERNAME,
+        password: DB_PAYMENTS_PASSWORD
     },
     s3: {
         s3Bucket: null

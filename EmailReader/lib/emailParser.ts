@@ -4,7 +4,13 @@ import FileLog from "./fileLog";
 import ImapLib from 'imap';
 import config from "../config";
 
-const {misc: {skipMimes}} = config
+const {misc: {
+        skipMimes
+    }} = config
+let fileLog: Array < {
+    filename: string,
+    origin: string
+} > = [];
 
 function emailProcessor(msg, seqno) {
     console.log(`Processing email ${seqno}...`);
@@ -17,14 +23,18 @@ function emailProcessor(msg, seqno) {
 
 function messageProcessor(stream, info) {
     const parser = new MailParser({streamAttachments: true});
+    let from;
     stream.on('data', (chunk) => {
         parser.write(chunk);
         const header = ImapLib.parseHeader(chunk.toString('utf8'));
-        parser.on('data', async (data) => {
-            if(data.type === 'attachment' && !skipMimes.includes(data.contentType.split('/')[0])) {
-                console.log(`Writing '${data.filename}'...`);
+        if (header.from) {
+            from = header.from[0];
+        }
+        parser.on('data', (data) => {
+            if (data.type === 'attachment' && !skipMimes.includes(data.contentType.split('/')[0])) {
+                // console.log(`Writing '${data.filename}'...`);
                 FileProcessor.writeAttachment(data);
-                await FileLog(data.filename, header.from);
+                fileLog.push({filename: data.filename, origin: from});
             }
         });
     });
@@ -32,10 +42,13 @@ function messageProcessor(stream, info) {
 
 export default(Emails, Imap) => {
     Emails.on('message', emailProcessor);
-    Emails.on('end', () => {
+    Emails.on('end', async () => {
         Imap.end();
-    });
-    Emails.once('error', (err) => {
-        console.log(err);
-    })
-}
+        const filteredFileLog = [...new Map(fileLog.map(item => [item['filename'], item])).values()];
+        for await(const item of filteredFileLog) {
+            await FileLog(item.filename, item.origin);
+        }
+});
+Emails.once('error', (err) => {
+    console.log(err);
+})}
