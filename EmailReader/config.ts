@@ -12,7 +12,8 @@ const {
     DB_PAYMENTS_HOST,
     DB_PAYMENTS_SCHEMA,
     DB_PAYMENTS_USERNAME,
-    DB_PAYMENTS_PASSWORD
+    DB_PAYMENTS_PASSWORD,
+    S3_BUCKET
 } = process.env;
 
 const compressedExts = ['zip'];
@@ -27,7 +28,7 @@ export default {
         password: DB_PAYMENTS_PASSWORD
     },
     s3: {
-        s3Bucket: null
+        s3Bucket: S3_BUCKET
     },
     imap: {
         user: IMAP_USER,

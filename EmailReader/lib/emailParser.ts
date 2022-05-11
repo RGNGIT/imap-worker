@@ -1,54 +1,59 @@
 import FileProcessor from "./fileProcessor";
 import {MailParser} from 'mailparser';
-import FileLog from "./fileLog";
 import ImapLib from 'imap';
 import config from "../config";
+import FileLog from "./fileLog";
 
-const {misc: {
+const {
+    misc: {
         skipMimes
-    }} = config
-let fileLog: Array < {
-    filename: string,
-    origin: string
-} > = [];
+    }
+} = config;
 
-function emailProcessor(msg, seqno) {
-    console.log(`Processing email ${seqno}...`);
-    const prefix = `(#${seqno})`;
-    msg.on('body', messageProcessor);
-    msg.once('end', () => {
-        console.log(`Finished processing email ${prefix}`);
-    });
-}
+class EmailParser {
 
-function messageProcessor(stream, info) {
-    const parser = new MailParser({streamAttachments: true});
-    let from;
-    stream.on('data', (chunk) => {
-        parser.write(chunk);
-        const header = ImapLib.parseHeader(chunk.toString('utf8'));
-        if (header.from) {
-            from = header.from[0];
-        }
-        parser.on('data', (data) => {
-            if (data.type === 'attachment' && !skipMimes.includes(data.contentType.split('/')[0])) {
-                // console.log(`Writing '${data.filename}'...`);
-                FileProcessor.writeAttachment(data);
-                fileLog.push({filename: data.filename, origin: from});
-            }
+    files: Array<{data, origin}> = [];
+
+    emailProcessor(msg, seqno) {
+        console.log(`Processing email ${seqno}...`);
+        const prefix = `(#${seqno})`;
+        msg.on('body', (stream, info) => this.messageProcessor(stream, info));
+        msg.once('end', () => {
+            console.log(`Finished processing email ${prefix}`);
         });
+    }
+    
+    messageProcessor(stream, info) {
+        let from;
+        const parser = new MailParser({streamAttachments: true});
+        stream.on('data', async (chunk) => {
+            parser.write(chunk);
+            const header = ImapLib.parseHeader(chunk.toString('utf8'));
+            if (header.from) {
+                from = header.from[0];
+            }
+            parser.on('data', async (data) => {
+                if (data.type === 'attachment' && !skipMimes.includes(data.contentType.split('/')[0])) {
+                    this.files.push({data: data, origin: from});
+                }
+            });
+        });
+    }
+    
+    Parse(Emails, Imap) {
+        Emails.on('message', (msg, seqno) => this.emailProcessor(msg, seqno));
+        Emails.on('end', async () => {
+            Imap.end();
+            const filteredFiles = [...new Map(this.files.map(item => [item['data'], item])).values()];
+            for await (const item of filteredFiles) {
+                await FileProcessor.writeAttachment(item.data);
+                await FileLog(item.data.filename, item.origin);
+            }
     });
+    Emails.once('error', (err) => {
+        console.log(err);
+    })}
+
 }
 
-export default(Emails, Imap) => {
-    Emails.on('message', emailProcessor);
-    Emails.on('end', async () => {
-        Imap.end();
-        const filteredFileLog = [...new Map(fileLog.map(item => [item['filename'], item])).values()];
-        for await(const item of filteredFileLog) {
-            await FileLog(item.filename, item.origin);
-        }
-});
-Emails.once('error', (err) => {
-    console.log(err);
-})}
+export default new EmailParser();
