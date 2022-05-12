@@ -11,7 +11,7 @@ const ImapInstanse = new Imap({
     }
 })
 .once('error', (err) => {
-    console.log(`Source Server Error:- ${err}`);
+    console.log(`Source Server Error: ${err}`);
 });
 
 export default ImapInstanse;

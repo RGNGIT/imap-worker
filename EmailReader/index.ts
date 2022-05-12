@@ -18,14 +18,15 @@ const job = new CronJob(cronTime, () => {
         ImapProcessor(imap);
         console.log("Successfully set up IMAP!");
     });
-    imap.once('error', function (err) {
+    imap.once('error', (err) => {
         console.log(`Server Error: ${err}`);
+        isJobRunning = false;
     });
-    imap.once('end', function () {
+    imap.once('end', () => {
         console.log('Connection terminated.');
+        isJobRunning = false;
     });
     imap.connect();
-    isJobRunning = false;
 });
 
 job.start();

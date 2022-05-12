@@ -1,28 +1,29 @@
-import FileProcessor from "./fileProcessor";
+import fileProcessor from "./fileProcessor";
 import {MailParser} from 'mailparser';
 import ImapLib from 'imap';
 import config from "../config";
 import FileLog from "./fileLog";
 
-const {
-    misc: {
+const {misc: {
         skipMimes
-    }
-} = config;
+    }} = config;
 
 class EmailParser {
 
-    files: Array<{data, origin}> = [];
+    files : Array < {
+        data,
+        origin
+    } > = [];
 
     emailProcessor(msg, seqno) {
-        console.log(`Processing email ${seqno}...`);
+        // console.log(`Processing email ${seqno}...`);
         const prefix = `(#${seqno})`;
         msg.on('body', (stream, info) => this.messageProcessor(stream, info));
         msg.once('end', () => {
-            console.log(`Finished processing email ${prefix}`);
+            // console.log(`Finished processing email ${prefix}`);
         });
     }
-    
+
     messageProcessor(stream, info) {
         let from;
         const parser = new MailParser({streamAttachments: true});
@@ -39,21 +40,27 @@ class EmailParser {
             });
         });
     }
-    
+
     Parse(Emails, Imap) {
+        const FileProcessor = new fileProcessor();
         Emails.on('message', (msg, seqno) => this.emailProcessor(msg, seqno));
         Emails.on('end', async () => {
+            try {
+                const filteredFiles = [...new Map(this.files.map(item => [item['data'], item])).values()];
+                for await(const item of filteredFiles) {
+                    await FileProcessor.writeAttachment(item.data);
+                    await FileLog(item.data.filename, item.origin);
+                }
+            
+        } catch (e) {
+            console.log(`An error occured while writing data. Code: ${e}`)
+        } finally {
             Imap.end();
-            const filteredFiles = [...new Map(this.files.map(item => [item['data'], item])).values()];
-            for await (const item of filteredFiles) {
-                await FileProcessor.writeAttachment(item.data);
-                await FileLog(item.data.filename, item.origin);
-            }
+        }
     });
     Emails.once('error', (err) => {
         console.log(err);
-    })}
+    })
+}}
 
-}
-
-export default new EmailParser();
+export default EmailParser;

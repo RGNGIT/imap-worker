@@ -6,14 +6,14 @@ const {
     IMAP_HOST,
     IMAP_PORT,
     IMAP_TLS,
-    FILE_PATH,
     CRON_TIME,
     DB_PAYMENTS_NAME,
     DB_PAYMENTS_HOST,
     DB_PAYMENTS_SCHEMA,
     DB_PAYMENTS_USERNAME,
     DB_PAYMENTS_PASSWORD,
-    S3_BUCKET
+    S3_BUCKET,
+    S3_FOLDER
 } = process.env;
 
 const compressedExts = ['zip'];
@@ -28,7 +28,8 @@ export default {
         password: DB_PAYMENTS_PASSWORD
     },
     s3: {
-        s3Bucket: S3_BUCKET
+        s3Bucket: S3_BUCKET,
+        s3Folder: S3_FOLDER
     },
     imap: {
         user: IMAP_USER,
@@ -39,7 +40,6 @@ export default {
     misc: {
         compressedExts: compressedExts,
         skipMimes: skipMimes,
-        filePath: FILE_PATH,
         cronTime: CRON_TIME
     }
 }
