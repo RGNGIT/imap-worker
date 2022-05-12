@@ -6,4 +6,4 @@ class MetricsStore {
     }
 }
 
-export default new MetricsStore();
+export default MetricsStore;
