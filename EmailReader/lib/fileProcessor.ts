@@ -35,4 +35,4 @@ class FileProcessor {
     }
 }
 
-export default new FileProcessor();
+export default FileProcessor();
