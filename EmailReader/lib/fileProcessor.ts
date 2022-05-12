@@ -8,9 +8,8 @@ const {
     }
 } = config;
 
-const FileStore = new s3();
-
 class FileProcessor {
+    const FileStore = new s3();
     async writeAttachment(data) {
         if(!this.isZip(data.filename)) {
             await FileStore.putData(`PBM_test/Maxor/${data.filename}`, await this.streamToBuffer(data.content));
