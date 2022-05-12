@@ -13,7 +13,7 @@ export default(Imap) => {
                 results.length
             } unprocessed emails`);
             const emails = Imap.fetch(results, {
-                bodies: [''/*'HEADER.FIELDS (FROM TO SUBJECT DATE)'*/],
+                bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)'],
                 markSeen: true
             });
             emailParser.Parse(emails, Imap);
