@@ -17,7 +17,7 @@ export default(Imap) => {
                 const emails = Imap.fetch(results, {
                     bodies: ['' /*'HEADER.FIELDS (FROM TO SUBJECT DATE)'*/
                     ],
-                    markSeen: true
+                    markSeen: false
                 });
                 EmailParser.Parse(emails, Imap);
             }

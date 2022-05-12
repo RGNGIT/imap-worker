@@ -26,16 +26,19 @@ class EmailParser {
 
     messageProcessor(stream, info) {
         let from;
-        const parser = new MailParser({streamAttachments: true});
+        const parser = new MailParser(/*{streamAttachments: true}*/);
         stream.on('data', async (chunk) => {
             parser.write(chunk);
             const header = ImapLib.parseHeader(chunk.toString('utf8'));
             if (header.from) {
                 from = header.from[0];
             }
-            parser.on('data', async (data) => {
+        });
+        stream.on('end', () => {
+            parser.on('data', (data) => {
                 if (data.type === 'attachment' && !skipMimes.includes(data.contentType.split('/')[0])) {
-                    this.files.push({data: data, origin: from});
+                    console.log(data.filename);
+                    // this.files.push({data: data, origin: from});
                 }
             });
         });
@@ -46,8 +49,7 @@ class EmailParser {
         Emails.on('message', (msg, seqno) => this.emailProcessor(msg, seqno));
         Emails.on('end', async () => {
             try {
-                const filteredFiles = [...new Map(this.files.map(item => [item['data'], item])).values()];
-                for await(const item of filteredFiles) {
+                for await(const item of this.files) {
                     await FileProcessor.writeAttachment(item.data);
                     await FileLog(item.data.filename, item.origin);
                 }
