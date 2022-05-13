@@ -4,10 +4,8 @@
     "@types/imap": "^0.8.35",
     "cron": "^2.0.0",
     "dotenv": "^16.0.0",
-    "download-email-attachments": "^2.0.1",
-    "imap": "^0.8.19",
-    "mailparser": "^3.5.0",
-    "node-imap": "^0.9.6",
+    "imap": "^0.8.17",
+    "mailparser": "0.5.3 ",
     "pg": "^8.7.3",
     "sequelize": "^6.19.0",
     "unzipper": "^0.10.11"

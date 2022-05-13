@@ -1,6 +1,7 @@
 import config from '../config';
 import unzipper from 'unzipper';
 import s3 from '../s3';
+import fs from 'fs';
 
 const {s3: {
         s3Folder
@@ -12,14 +13,14 @@ const FileStore = new s3();
 
 class FileProcessor {
     async writeAttachment(data) {
-        if (!this.isZip(data.filename)) {
+        if (!this.isZip(data.fileName)) {
             await FileStore.putData(`${s3Folder}/Maxor/${
-                data.filename
-            }`, await this.streamToBuffer(data.content));
+                 data.fileName
+            }`, await this.streamToBuffer(data.stream));
         } else {
-            data.content.pipe(unzipper.Parse()).on('entry', async (file) => {
+            data.stream.pipe(unzipper.Parse()).on('entry', async (file) => {
                 await FileStore.putData(`${s3Folder}/Maxor/${
-                    file.path
+                     file.path
                 }`, await this.streamToBuffer(file));
             });
         }
