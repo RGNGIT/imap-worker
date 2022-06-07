@@ -14,12 +14,12 @@ const FileStore = new s3();
 class FileProcessor {
     async writeAttachment(data) {
         if (!this.isZip(data.fileName)) {
-            await FileStore.putData(`${s3Folder}/Maxor/${
+            await FileStore.putData(`${s3Folder}/Other/${
                  data.fileName
             }`, await this.streamToBuffer(data.stream));
         } else {
             data.stream.pipe(unzipper.Parse()).on('entry', async (file) => {
-                await FileStore.putData(`${s3Folder}/Maxor/${
+                await FileStore.putData(`${s3Folder}/Other/${
                      file.path
                 }`, await this.streamToBuffer(file));
             });
@@ -34,6 +34,30 @@ class FileProcessor {
         } catch (e) {
             console.log(`Processing file (${name}) has no extenson. Code: ${e}`);
             return true;
+        }
+    }
+
+    async writeToMaxor(stream) {
+        try {
+            stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                await FileStore.putData(`${s3Folder}/Maxor/${
+                     file.path
+                }`, await this.streamToBuffer(file));
+            });
+        } catch(e) {
+            console.log(`Error while writing file to maxor. Code: ${e}`);
+        }
+    }
+
+    async writeToApproRx(stream) {
+        try {
+            stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                await FileStore.putData(`${s3Folder}/ApproRx/${
+                     file.path
+                }`, await this.streamToBuffer(file));
+            });
+        } catch(e) {
+            console.log(`Error while writing file to approrx. Code: ${e}`);
         }
     }
 

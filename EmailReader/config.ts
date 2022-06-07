@@ -13,11 +13,16 @@ const {
     DB_PAYMENTS_USERNAME,
     DB_PAYMENTS_PASSWORD,
     S3_BUCKET,
-    S3_FOLDER
+    S3_FOLDER,
+    MAXOR_PASSWORD,
+    MAXOR_LOCAL_DIR,
+    APPRORX_PASSWORD,
+    APPRORX_LOCAL_DIR
 } = process.env;
 
 const compressedExts = ['zip'];
 const skipMimes = ['image'];
+const electedProviders = ['maxor', 'approrx']
 
 export default {
     sequelizeConfig: {
@@ -40,6 +45,11 @@ export default {
     misc: {
         compressedExts: compressedExts,
         skipMimes: skipMimes,
-        cronTime: CRON_TIME
+        cronTime: CRON_TIME,
+        maxorPassword: MAXOR_PASSWORD,
+        maxorLocalDir: MAXOR_LOCAL_DIR,
+        approrxPassword: APPRORX_PASSWORD,
+        approrxLocalDir: APPRORX_LOCAL_DIR,
+        electedProviders: electedProviders
     }
 }

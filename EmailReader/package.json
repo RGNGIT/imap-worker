@@ -1,12 +1,12 @@
 {
-  "scripts": {    
+  "scripts": {
     "dev": "ts-node index.ts",
     "start": "node dist/index.js",
     "build-ts": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy-template": "copyfiles ./fileProcessorK8sJobs/fileProcessorJobTemplate.yaml ./dist",
     "postinstall": "npm run build-ts"
-},
+  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.86.0",
     "@types/imap": "^0.8.35",
@@ -15,7 +15,9 @@
     "imap": "^0.8.17",
     "mailparser": "0.5.3 ",
     "pg": "^8.7.3",
+    "puppeteer": "^14.1.2",
     "sequelize": "^6.19.0",
+    "typescript": "^4.7.2",
     "unzipper": "^0.10.11"
   },
   "devDependencies": {
