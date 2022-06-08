@@ -1,7 +1,6 @@
 import config from '../config';
 import unzipper from 'unzipper';
 import s3 from '../s3';
-import fs from 'fs';
 
 const {s3: {
         s3Folder

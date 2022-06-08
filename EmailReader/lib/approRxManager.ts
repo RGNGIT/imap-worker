@@ -21,14 +21,6 @@ async function waitFile(filename) {
     });
 }
 
-async function getStringifiedMail(stream): Promise<string> {
-    return new Promise((resolve, reject) => {
-        stream.on('data', chunk => {
-            resolve(chunk.toString());
-        });
-    });
-}
-
 function fixUrl(line1, line2, line3) {
     const formattedLine1 = line1.split('<')[1];
     const formattedLine3 = line3.split('>')[0];
@@ -39,8 +31,8 @@ function fixUrl(line1, line2, line3) {
     return newUrl;
 }
 
-export default async (stream) => {
-    const stringifiedMail = await getStringifiedMail(stream);
+export default async (buffer) => {
+    const stringifiedMail = buffer;
     const splitMail = stringifiedMail.split('\n');
     let url;
     for(let i = 0; i < splitMail.length; i++) {

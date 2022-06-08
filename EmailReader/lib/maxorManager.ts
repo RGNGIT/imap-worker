@@ -21,14 +21,6 @@ async function waitFile(filename) {
     });
 }
 
-async function getStringifiedMail(stream): Promise<string> {
-    return new Promise((resolve, reject) => {
-        stream.on('data', chunk => {
-            resolve(chunk.toString());
-        });
-    });
-}
-
 function fixUrl(line1, line2) {
     const formattedLine1 = line1.split('<')[1];
     const formattedLine2 = line2.split('>')[0];
@@ -38,8 +30,8 @@ function fixUrl(line1, line2) {
     return newUrl;
 }
 
-export default async (stream) => {
-    const stringifiedMail = await getStringifiedMail(stream);
+export default async (buffer) => {
+    const stringifiedMail = buffer;
     const splitMail = stringifiedMail.split('\n');
     let url;
     for(let i = 0; i < splitMail.length; i++) {
@@ -53,6 +45,6 @@ export default async (stream) => {
         const fileProcessor = new FileProcessor();
         const readStream = fs.createReadStream(path);
         await fileProcessor.writeToMaxor(readStream);
-        fs.unlinkSync(path);
+        // fs.unlinkSync(path);
     }
 }
