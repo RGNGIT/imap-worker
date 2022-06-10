@@ -31,7 +31,7 @@ function fixUrl(line1, line2, line3) {
     return newUrl;
 }
 
-export default async (buffer) => {
+export default async (buffer, email) => {
     const stringifiedMail = buffer;
     const splitMail = stringifiedMail.split('\n');
     let url;
@@ -41,11 +41,12 @@ export default async (buffer) => {
             break;
         }
     }
-    await approRxSecureReader(url);
+    const browser = await approRxSecureReader(url, email);
     if(await waitFile(path)) {
         const fileProcessor = new FileProcessor();
         const readStream = fs.createReadStream(path);
         await fileProcessor.writeToApproRx(readStream);
-        // fs.unlinkSync(path);
+        fs.unlinkSync(path);
+        await browser.close();
     }
 }

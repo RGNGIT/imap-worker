@@ -23,13 +23,13 @@ function checkIncludesProvider(stringToCheck): string {
 
 class EmailParser {
 
-    async jumper(buffer, provider) {
+    async jumper(buffer, provider, email) {
         switch(provider) {
             case 'maxor':
-                await maxorManager(buffer);
+                await maxorManager(buffer, email);
             break;
             case 'approrx':
-                await approRxManager(buffer);
+                await approRxManager(buffer, email);
             break;
         }
     }
@@ -47,28 +47,27 @@ class EmailParser {
         const FileProcessor = new fileProcessor();
         const parser = new MailParser({streamAttachments: true});
         let buffer = '';
-        // stream.pipe(parser);
         stream.on('data', chunk => {
+            parser.write(chunk);
             buffer += chunk.toString('utf8');
         });
+        parser.on('attachment', async (att, mail) => {
+            try {
+                if (!skipMimes.includes(att.contentType.split('/')[0])) {
+                    await FileProcessor.writeAttachment(att);
+                    await FileLog(att.fileName, mail.from[0].name, mail.from[0].address);
+                }
+            } catch (e) {
+                console.log(`An error occured while writing attachment (${
+                    att.fileName
+                }). Code: ${e}`);
+            }
+        });
         stream.once('end', async () => {
-            const provider = checkIncludesProvider(ImapLib.parseHeader(buffer).from[0]);
+            const email = ImapLib.parseHeader(buffer);
+            const provider = checkIncludesProvider(email.from[0]);
             if(provider) {
-                await this.jumper(buffer, provider);
-            } else {
-                parser.on('attachment', async (att, mail) => {
-                    try {
-                        console.log(att);
-                        if (!skipMimes.includes(att.contentType.split('/')[0])) {
-                            await FileProcessor.writeAttachment(att);
-                            await FileLog(att.fileName, mail.from[0].name, mail.from[0].address);
-                        }
-                    } catch (e) {
-                        console.log(`An error occured while writing attachment (${
-                            att.fileName
-                        }). Code: ${e}`);
-                    }
-                });
+                await this.jumper(buffer, provider, email);
             }
         });
     }
@@ -76,7 +75,7 @@ class EmailParser {
     Parse(Emails, Imap) {
         Emails.on('message', (msg, seqno) => this.emailProcessor(msg, seqno));
         Emails.on('end', () => {
-            // Imap.end();
+            Imap.end();
         });
         Emails.once('error', (err) => {
             console.log(err);

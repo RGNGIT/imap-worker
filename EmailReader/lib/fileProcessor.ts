@@ -37,27 +37,39 @@ class FileProcessor {
     }
 
     async writeToMaxor(stream) {
-        try {
-            stream.pipe(unzipper.Parse()).on('entry', async (file) => {
-                await FileStore.putData(`${s3Folder}/Maxor/${
-                     file.path
-                }`, await this.streamToBuffer(file));
-            });
-        } catch(e) {
-            console.log(`Error while writing file to maxor. Code: ${e}`);
-        }
+        return new Promise((resolve, reject) => {
+            try {
+                stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                    await FileStore.putData(`${s3Folder}/Maxor/${
+                         file.path
+                    }`, await this.streamToBuffer(file));
+                });
+                stream.once('end', () => {
+                    resolve(true);
+                });
+            } catch(e) {
+                console.log(`Error while writing file to maxor. Code: ${e}`);
+                reject(false);
+            }
+        });
     }
 
     async writeToApproRx(stream) {
-        try {
-            stream.pipe(unzipper.Parse()).on('entry', async (file) => {
-                await FileStore.putData(`${s3Folder}/ApproRx/${
-                     file.path
-                }`, await this.streamToBuffer(file));
-            });
-        } catch(e) {
-            console.log(`Error while writing file to approrx. Code: ${e}`);
-        }
+        return new Promise((resolve, reject) => {
+            try {
+                stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                    await FileStore.putData(`${s3Folder}/ApproRx/${
+                         file.path
+                    }`, await this.streamToBuffer(file));
+                });
+                stream.once('end', () => {
+                    resolve(true);
+                });
+            } catch(e) {
+                console.log(`Error while writing file to approrx. Code: ${e}`);
+                reject(false);
+            }
+        })
     }
 
     async streamToBuffer(stream): Promise < Buffer > {

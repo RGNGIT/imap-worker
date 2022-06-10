@@ -5,7 +5,7 @@ import fs from 'fs';
 
 const { misc: { maxorPassword, maxorLocalDir } } = config;
 
-const path = `${maxorLocalDir}/Lucent Health.zip`;
+const path = `${maxorLocalDir}/Lucent Health Invoices.zip`;
 
 const delay = time => new Promise(res => setTimeout(res, time));
 
@@ -30,7 +30,7 @@ function fixUrl(line1, line2) {
     return newUrl;
 }
 
-export default async (buffer) => {
+export default async (buffer, email) => {
     const stringifiedMail = buffer;
     const splitMail = stringifiedMail.split('\n');
     let url;
@@ -40,11 +40,12 @@ export default async (buffer) => {
             break;
         }
     }
-    await maxorSecureReader(url);
+    const browser = await maxorSecureReader(url, email);
     if(await waitFile(path)) {
         const fileProcessor = new FileProcessor();
         const readStream = fs.createReadStream(path);
         await fileProcessor.writeToMaxor(readStream);
-        // fs.unlinkSync(path);
+        fs.unlinkSync(path);
+        await browser.close();
     }
 }
