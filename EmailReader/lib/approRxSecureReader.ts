@@ -3,11 +3,10 @@ import config from '../config';
 
 const { misc: { approrxLocalDir, approrxPassword } } = config;
 
-export default async (url, email, page, browser) => {
+export default async (email, page, browser) => {
     try {
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: approrxLocalDir });
-        await page.goto(url);
         await page.evaluate(() => {
             document.getElementsByName('password')[0].setAttribute('value', 'Lucent2022');
             document.getElementsByName('cmd_login')[0].click();

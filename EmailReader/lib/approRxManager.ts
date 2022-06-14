@@ -1,4 +1,4 @@
-import approRxPasswordHandler from "./approRxPasswordHandler";
+import approRxMiddleHandler from "./approRxMiddleHandler";
 import config from "../config";
 import fs from 'fs';
 import FileProcessor from './fileProcessor';
@@ -41,12 +41,12 @@ export default async (buffer, email) => {
             break;
         }
     }
-    await approRxPasswordHandler(url, email);
+    const browser = await approRxMiddleHandler(url, email);
     if(await waitFile(path)) {
         const fileProcessor = new FileProcessor();
         const readStream = fs.createReadStream(path);
         await fileProcessor.writeToApproRx(readStream);
         fs.unlinkSync(path);
-        // await browser.close();
+        await browser.close();
     }
 }

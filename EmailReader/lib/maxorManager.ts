@@ -1,5 +1,5 @@
 import FileProcessor from './fileProcessor';
-import maxorSecureReader from './maxorSecureReader';
+import maxorMiddleHandler from './maxorMiddleHandler';
 import config from '../config';
 import fs from 'fs';
 
@@ -40,7 +40,7 @@ export default async (buffer, email) => {
             break;
         }
     }
-    const browser = await maxorSecureReader(url, email);
+    const browser = await maxorMiddleHandler(url, email);
     if(await waitFile(path)) {
         const fileProcessor = new FileProcessor();
         const readStream = fs.createReadStream(path);
