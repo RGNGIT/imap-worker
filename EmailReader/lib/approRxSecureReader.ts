@@ -3,9 +3,7 @@ import config from '../config';
 
 const { misc: { approrxLocalDir, approrxPassword } } = config;
 
-export default async (url, email) => {
-    const browser = await p.launch({ headless: true });
-    const page = await browser.newPage();
+export default async (url, email, page, browser) => {
     try {
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: approrxLocalDir });
