@@ -6,5 +6,6 @@ COPY . ./
 # RUN mkdir ~/.aws && mv credentials ~/.aws/ && mv config ~/.aws/
 # RUN aws eks update-kubeconfig --region us-east-1 --name lh --kubeconfig ./lh_conf
 # COPY ["package*.json", "index.ts", "tsconfig.json", "config.ts", "./s3", "./lib", "./db", "./"]
+RUN apt update && apt install -y xvfb && rm -rf /var/lib/apt/lists/*
 RUN npm install
 CMD [ "npm", "run", "start" ]
