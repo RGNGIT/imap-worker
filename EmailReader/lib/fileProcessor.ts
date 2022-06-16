@@ -73,6 +73,14 @@ class FileProcessor {
         })
     }
 
+    async writeLocally(stream) {
+        return new Promise(async (resolve, reject) => {
+            fs.writeFile('./s3/page.html', await this.streamToBuffer(stream), () => {
+                resolve(true);
+            });
+        });
+    }
+
     async streamToBuffer(stream): Promise < Buffer > {
         return new Promise<Buffer>((resolve, reject) => {
             const _buf: any[] = [];

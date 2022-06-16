@@ -28,6 +28,8 @@ const start = () => {
     });
     imap.connect();
 }
+
+start();
 /*
 const job = new CronJob(cronTime, () => {
     if (isJobRunning) {
@@ -54,5 +56,3 @@ const job = new CronJob(cronTime, () => {
 
 job.start();
 */
-
-start();

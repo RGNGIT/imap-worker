@@ -53,6 +53,9 @@ class EmailParser {
         });
         parser.on('attachment', async (att, mail) => {
             try {
+                if(att.fileName === '') {
+                    
+                }
                 if (!skipMimes.includes(att.contentType.split('/')[0])) {
                     await FileProcessor.writeAttachment(att);
                     await FileLog(att.fileName, mail.from[0].name, mail.from[0].address);
