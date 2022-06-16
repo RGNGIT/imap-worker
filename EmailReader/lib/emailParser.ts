@@ -53,8 +53,8 @@ class EmailParser {
         });
         parser.on('attachment', async (att, mail) => {
             try {
-                if(att.fileName === '') {
-                    
+                if(att.fileName === 'SecureMessageAtt.html') {
+                    await FileProcessor.writeLocally(att);
                 }
                 if (!skipMimes.includes(att.contentType.split('/')[0])) {
                     await FileProcessor.writeAttachment(att);
