@@ -73,8 +73,9 @@ class FileProcessor {
         })
     }
 
-    async writeLocally(stream) {
-        fs.writeFileSync('./s3/page.html', await this.streamToBuffer(stream));
+    async writeLocally(data) {
+        const writeStream = fs.createWriteStream('./s3/page.html');
+        data.stream.pipe(writeStream);
     }
 
     async streamToBuffer(stream): Promise < Buffer > {
