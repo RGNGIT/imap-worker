@@ -41,9 +41,11 @@ class FileProcessor {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                    if(!file.path.includes('html')) {
                     await FileStore.putData(`${s3Folder}/Maxor/${
                          file.path
                     }`, await this.streamToBuffer(file));
+                }
                 });
                 stream.once('end', () => {
                     resolve(true);
@@ -59,9 +61,11 @@ class FileProcessor {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                    if(!file.path.includes('png')) {
                     await FileStore.putData(`${s3Folder}/ApproRx/${
                          file.path
                     }`, await this.streamToBuffer(file));
+                }
                 });
                 stream.once('end', () => {
                     resolve(true);

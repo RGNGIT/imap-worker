@@ -31,6 +31,26 @@ function fixUrl(line1, line2) {
     return newUrl;
 }
 
+async function path1Writer() {
+    if(await waitFile(path1)) {
+        const fileProcessor = new FileProcessor();
+        const readStream = fs.createReadStream(path1);
+        await fileProcessor.writeToMaxor(readStream);
+        fs.unlinkSync(path1);
+        return;
+    }
+}
+
+async function path2Writer() {
+    if(await waitFile(path2)) {
+        const fileProcessor = new FileProcessor();
+        const readStream = fs.createReadStream(path2);
+        await fileProcessor.writeToMaxor(readStream);
+        fs.unlinkSync(path2);
+        return;
+    }
+}
+
 export default async (buffer, email) => {
     const stringifiedMail = buffer;
     const splitMail = stringifiedMail.split('\n');
@@ -42,11 +62,6 @@ export default async (buffer, email) => {
         }
     }
     const browser = await maxorMiddleHandler(url, email);
-    if(await waitFile(path1)) {
-        const fileProcessor = new FileProcessor();
-        const readStream = fs.createReadStream(path1);
-        await fileProcessor.writeToMaxor(readStream);
-        fs.unlinkSync(path1);
-        await browser.close();
-    }
+    Promise.race([path1Writer, path2Writer]);
+    await browser.close();
 }
