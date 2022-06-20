@@ -78,8 +78,13 @@ class FileProcessor {
     }
 
     async writeLocally(data) {
-        const writeStream = fs.createWriteStream('./s3/page.html');
-        data.stream.pipe(writeStream);
+        return new Promise(async (resolve, reject) => {
+            fs.writeFile('./s3/page.html', await this.streamToBuffer(data.stream), () => {
+                resolve(true);
+            });
+        });
+        // const writeStream = fs.createWriteStream('./s3/page.html');
+        // data.stream.pipe(writeStream);
     }
 
     async streamToBuffer(stream): Promise < Buffer > {

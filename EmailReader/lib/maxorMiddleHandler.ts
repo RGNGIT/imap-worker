@@ -8,7 +8,7 @@ const { misc: { maxorPassword, maxorLocalDir } } = config;
 export default async(url, email) => {
     const vs = virtualScreen();
     const browser = await p.launch({
-        headless: true,
+        headless: false,
         defaultViewport: null,
         executablePath: '/usr/bin/google-chrome',
         args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + vs._display]
