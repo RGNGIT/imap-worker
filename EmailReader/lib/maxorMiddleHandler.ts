@@ -10,8 +10,8 @@ export default async(url, email, dir) => {
     const browser = await p.launch({
         headless: false,
         defaultViewport: null,
-        executablePath: '/usr/bin/google-chrome',
-        args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + vs._display]
+        // executablePath: '/usr/bin/google-chrome',
+        // args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + vs._display]
         });
         const page = await browser.newPage();
     try {
