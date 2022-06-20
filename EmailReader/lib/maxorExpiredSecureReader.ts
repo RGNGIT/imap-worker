@@ -7,7 +7,7 @@ const { misc: { maxorPassword, maxorLocalDir } } = config;
 
 export default async (email, page, browser) => {
     const absPath = path.resolve('./s3/page.html');
-    await page.goto('file:/' + absPath);
+    await page.goto('file://' + absPath);
     await page.evaluate(() => {
         document.getElementsByName('submitButton')[0].click();
     });

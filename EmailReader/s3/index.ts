@@ -8,7 +8,7 @@ import {
   } from '@aws-sdk/client-s3'
   import { Readable } from 'stream';
   import config from '../config';
-  
+
   const {
     s3: {
       s3Bucket,
@@ -18,7 +18,7 @@ import {
   export default class FileStore {
     _client: S3Client;
     constructor() {
-      this._client = new S3Client({});
+      this._client = new S3Client({region:'us-east-1'});
     }
   
     async listObjects (prefix?: string): Promise<Array<{ Key?: string, Size?: number}>> {

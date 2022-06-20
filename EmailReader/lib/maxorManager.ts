@@ -42,11 +42,11 @@ export default async (buffer, email) => {
         }
     }
     const browser = await maxorMiddleHandler(url, email);
-    if(await waitFile(path1 || path2)) {
+    if(await waitFile(path1)) {
         const fileProcessor = new FileProcessor();
-        const readStream = fs.createReadStream(path1 || path2);
+        const readStream = fs.createReadStream(path1);
         await fileProcessor.writeToMaxor(readStream);
-        fs.unlinkSync(path1 || path2);
+        fs.unlinkSync(path1);
         await browser.close();
     }
 }
