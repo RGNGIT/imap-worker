@@ -5,7 +5,7 @@ const path = require("path");
 
 const { misc: { maxorPassword, maxorLocalDir } } = config;
 
-export default async (email, page, browser) => {
+export default async (email, page, browser, dir) => {
     const absPath = path.resolve('./s3/page.html');
     await page.goto('file://' + absPath);
     await page.evaluate(() => {
@@ -13,7 +13,7 @@ export default async (email, page, browser) => {
     });
     await page.waitForNavigation();
     const client = await page.target().createCDPSession();
-    await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: maxorLocalDir });
+    await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: `${maxorLocalDir}/${dir}` });
     await page.evaluate(() => {
         document.getElementById('dialog:password').setAttribute('value', 'pL3^769fokZ5Lx');
         document.getElementById('dialog:continueButton').click();

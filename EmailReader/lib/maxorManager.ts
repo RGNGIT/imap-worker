@@ -74,7 +74,8 @@ class MaxorManager {
             }
         }
         const browser = await maxorMiddleHandler(url, email, this.dir);
-        await Promise.race([this.path1Writer, this.path2Writer]);
+        await this.path1Writer();
+        // await Promise.race([this.path1Writer, this.path2Writer]);
         // await browser.close();
     }
 

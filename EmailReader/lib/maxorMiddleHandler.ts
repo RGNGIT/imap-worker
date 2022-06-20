@@ -10,8 +10,8 @@ export default async(url, email, dir) => {
     const browser = await p.launch({
         headless: false,
         defaultViewport: null,
-        // executablePath: '/usr/bin/google-chrome',
-        // args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + vs._display]
+        executablePath: '/usr/bin/google-chrome',
+        args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + vs._display]
         });
         const page = await browser.newPage();
     try {
@@ -30,6 +30,6 @@ export default async(url, email, dir) => {
     } catch (e) {
         // If expired
         // console.log(`Error while processing Maxor mail. Email from ${email.from[0]}. Date: ${email.date[0]}. MessageID: ${email['message-id'][0]}`);
-        return await maxorExpiredSecureReader(email, page, browser);;
+        return await maxorExpiredSecureReader(email, page, browser, dir);;
     }
 }
