@@ -26,7 +26,7 @@ class EmailParser {
     async jumper(buffer, provider, email) {
         switch(provider) {
             case 'maxor':
-                await maxorManager(buffer, email);
+                await new maxorManager(Math.floor(Math.random() * 10).toString()).process(buffer, email);
             break;
             case 'approrx':
                 await approRxManager(buffer, email);
