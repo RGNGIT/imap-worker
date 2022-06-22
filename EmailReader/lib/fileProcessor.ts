@@ -80,7 +80,7 @@ class FileProcessor {
 
     async writeLocally(data, dir) {
         return new Promise(async (resolve, reject) => {
-            fs.writeFile(`${tempLocalDir}/${dir}/page.html`, await this.streamToBuffer(data.stream), () => {
+            fs.writeFile(`${"./temp"}/${dir}/page.html`, await this.streamToBuffer(data.stream), () => {
                 resolve(true);
             });
         });

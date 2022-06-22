@@ -9,8 +9,8 @@ class MaxorManager {
 
     constructor(dir) {
         this.dir = dir;
-        this.path1 = `${tempLocalDir}/${dir}/Lucent Health.zip`;
-        this.path2 = `${tempLocalDir}/${dir}/Lucent Health Invoices.zip`;
+        this.path1 = `${"./temp"}/${dir}/Lucent Health.zip`;
+        this.path2 = `${"./temp"}/${dir}/Lucent Health Invoices.zip`;
     }
 
     path1;

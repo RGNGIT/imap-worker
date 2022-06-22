@@ -9,7 +9,7 @@ class ApproRxManager {
 
     constructor(dir) {
         this.dir = dir;
-        this.path = `${tempLocalDir}/${dir}/all.zip`;
+        this.path = `${'./temp'}/${dir}/all.zip`;
     }
 
     path;
@@ -40,8 +40,8 @@ class ApproRxManager {
     }
 
     async process(buffer, email) {
-        if (!fs.existsSync(`${tempLocalDir}/${this.dir}`)) {
-            fs.mkdirSync(`${tempLocalDir}/${this.dir}`);
+        if (!fs.existsSync(`${"./temp"}/${this.dir}`)) {
+            fs.mkdirSync(`${"./temp"}/${this.dir}`);
         }
         const stringifiedMail = buffer;
         const splitMail = stringifiedMail.split('\n');

@@ -16,7 +16,7 @@ export default async(url, email, dir) => {
     try {
         await page.goto(url);
         const client = await page.target().createCDPSession();
-        await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: `${tempLocalDir}/${dir}` });
+        await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: `${"./temp"}/${dir}` });
         await page.evaluate(() => {
             document.getElementById('dialog:password').setAttribute('value', 'pL3^769fokZ5Lx');
             document.getElementById('dialog:continueButton').click();

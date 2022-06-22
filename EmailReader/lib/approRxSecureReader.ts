@@ -6,7 +6,7 @@ const { misc: { tempLocalDir, approrxPassword } } = config;
 export default async (email, page, browser, dir) => {
     try {
         const client = await page.target().createCDPSession();
-        await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: `${tempLocalDir}/${dir}` });
+        await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: `${"./temp"}/${dir}` });
         await page.evaluate(() => {
             document.getElementsByName('password')[0].setAttribute('value', 'Lucent2022');
             document.getElementsByName('cmd_login')[0].click();

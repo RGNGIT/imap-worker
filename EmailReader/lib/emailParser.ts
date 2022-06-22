@@ -57,7 +57,7 @@ class EmailParser {
             try {
                 if(att.fileName === 'SecureMessageAtt.html') {
                     dir = `<${mail.messageId}>`;
-                    fs.mkdirSync(`${tempLocalDir}/${dir}`);
+                    fs.mkdirSync(`${"./temp"}/${dir}`);
                     await FileProcessor.writeLocally(att, dir);
                 }
                 if (!skipMimes.includes(att.contentType.split('/')[0])) {
