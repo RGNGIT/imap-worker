@@ -15,9 +15,8 @@ const {
     S3_BUCKET,
     S3_FOLDER,
     MAXOR_PASSWORD,
-    MAXOR_LOCAL_DIR,
-    APPRORX_PASSWORD,
-    APPRORX_LOCAL_DIR
+    TEMP_LOCAL_DIR,
+    APPRORX_PASSWORD
 } = process.env;
 
 const compressedExts = ['zip'];
@@ -47,9 +46,8 @@ export default {
         skipMimes: skipMimes,
         cronTime: CRON_TIME,
         maxorPassword: MAXOR_PASSWORD,
-        maxorLocalDir: MAXOR_LOCAL_DIR,
+        tempLocalDir: TEMP_LOCAL_DIR,
         approrxPassword: APPRORX_PASSWORD,
-        approrxLocalDir: APPRORX_LOCAL_DIR,
         electedProviders: electedProviders
     }
 }

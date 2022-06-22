@@ -3,19 +3,20 @@ import maxorMiddleHandler from './maxorMiddleHandler';
 import config from '../config';
 import fs from 'fs';
 
-const { misc: { maxorPassword, maxorLocalDir } } = config;
+const { misc: { maxorPassword, tempLocalDir } } = config;
 
 class MaxorManager {
 
     constructor(dir) {
         this.dir = dir;
-        this.path1 = `${maxorLocalDir}/${dir}/Lucent Health.zip`;
-        this.path2 = `${maxorLocalDir}/${dir}/Lucent Health Invoices.zip`;
+        this.path1 = `${tempLocalDir}/${dir}/Lucent Health.zip`;
+        this.path2 = `${tempLocalDir}/${dir}/Lucent Health Invoices.zip`;
     }
 
     path1;
     path2;
     dir;
+    browser;
     
     delay = time => new Promise(res => setTimeout(res, time));
     
@@ -44,8 +45,9 @@ class MaxorManager {
         if(await this.waitFile(this.path1)) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path1);
-            await fileProcessor.writeToMaxor(readStream);
+            await fileProcessor.writeToMaxor(readStream, this.dir);
             fs.unlinkSync(this.path1);
+            await this.browser.close();
             return;
         }
     }
@@ -54,16 +56,14 @@ class MaxorManager {
         if(await this.waitFile(this.path2)) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path2);
-            await fileProcessor.writeToMaxor(readStream);
+            await fileProcessor.writeToMaxor(readStream, this.dir);
             fs.unlinkSync(this.path2);
+            await this.browser.close();
             return;
         }
     }
     
     async process(buffer, email) {
-        if (!fs.existsSync(`${maxorLocalDir}/${this.dir}`)) {
-            fs.mkdirSync(`${maxorLocalDir}/${this.dir}`);
-        }
         const stringifiedMail = buffer;
         const splitMail = stringifiedMail.split('\n');
         let url;
@@ -73,10 +73,9 @@ class MaxorManager {
                 break;
             }
         }
-        const browser = await maxorMiddleHandler(url, email, this.dir);
+        this.browser = await maxorMiddleHandler(url, email, this.dir);
         await this.path1Writer();
         // await Promise.race([this.path1Writer, this.path2Writer]);
-        // await browser.close();
     }
 
 }

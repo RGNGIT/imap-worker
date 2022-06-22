@@ -6,7 +6,8 @@ import fs from 'fs';
 const {s3: {
         s3Folder
     }, misc: {
-        compressedExts
+        compressedExts,
+        tempLocalDir
     }} = config;
 
 const FileStore = new s3();
@@ -37,12 +38,12 @@ class FileProcessor {
         }
     }
 
-    async writeToMaxor(stream) {
+    async writeToMaxor(stream, mId) {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
                     if(!file.path.includes('html')) {
-                    await FileStore.putData(`${s3Folder}/Maxor/${
+                    await FileStore.putData(`${s3Folder}/Maxor/${mId}${
                          file.path
                     }`, await this.streamToBuffer(file));
                 }
@@ -57,12 +58,12 @@ class FileProcessor {
         });
     }
 
-    async writeToApproRx(stream) {
+    async writeToApproRx(stream, mId) {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
                     if(!file.path.includes('png')) {
-                    await FileStore.putData(`${s3Folder}/ApproRx/${
+                    await FileStore.putData(`${s3Folder}/ApproRx/${mId}${
                          file.path
                     }`, await this.streamToBuffer(file));
                 }
@@ -77,9 +78,9 @@ class FileProcessor {
         })
     }
 
-    async writeLocally(data) {
+    async writeLocally(data, dir) {
         return new Promise(async (resolve, reject) => {
-            fs.writeFile('./s3/page.html', await this.streamToBuffer(data.stream), () => {
+            fs.writeFile(`${tempLocalDir}/${dir}/page.html`, await this.streamToBuffer(data.stream), () => {
                 resolve(true);
             });
         });

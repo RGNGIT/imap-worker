@@ -4,12 +4,13 @@ import ImapLib from 'imap';
 import config from "../config";
 import FileLog from "./fileLog";
 import fs from 'fs';
-import maxorManager from "./maxorManager";
-import approRxManager from "./approRxManager";
+import MaxorManager from "./maxorManager";
+import ApproRxManager from "./approRxManager";
 
 const {misc: {
         skipMimes,
-        electedProviders
+        electedProviders,
+        tempLocalDir
     }} = config;
 
 function checkIncludesProvider(stringToCheck): string {
@@ -23,13 +24,13 @@ function checkIncludesProvider(stringToCheck): string {
 
 class EmailParser {
 
-    async jumper(buffer, provider, email) {
+    async jumper(buffer, provider, email, dir) {
         switch(provider) {
             case 'maxor':
-                await new maxorManager(Math.floor(Math.random() * 10).toString()).process(buffer, email);
+                await new MaxorManager(dir).process(buffer, email);
             break;
             case 'approrx':
-                await approRxManager(buffer, email);
+                await new ApproRxManager(dir).process(buffer, email);
             break;
         }
     }
@@ -47,6 +48,7 @@ class EmailParser {
         const FileProcessor = new fileProcessor();
         const parser = new MailParser({streamAttachments: true});
         let buffer = '';
+        let dir;
         stream.on('data', chunk => {
             parser.write(chunk);
             buffer += chunk.toString('utf8');
@@ -54,7 +56,9 @@ class EmailParser {
         parser.on('attachment', async (att, mail) => {
             try {
                 if(att.fileName === 'SecureMessageAtt.html') {
-                    await FileProcessor.writeLocally(att);
+                    dir = `<${mail.messageId}>`;
+                    fs.mkdirSync(`${tempLocalDir}/${dir}`);
+                    await FileProcessor.writeLocally(att, dir);
                 }
                 if (!skipMimes.includes(att.contentType.split('/')[0])) {
                     await FileProcessor.writeAttachment(att);
@@ -68,9 +72,10 @@ class EmailParser {
         });
         stream.once('end', async () => {
             const email = ImapLib.parseHeader(buffer);
+            dir = email['message-id'][0];
             const provider = checkIncludesProvider(email.from[0]);
             if(provider) {
-                await this.jumper(buffer, provider, email);
+                await this.jumper(buffer, provider, email, dir);
             }
         });
     }

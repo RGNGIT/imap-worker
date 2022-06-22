@@ -2,6 +2,7 @@ import {CronJob} from 'cron';
 import ImapInstanse from "./imap";
 import ImapProcessor from "./lib/imapProcessor";
 import config from './config';
+import fs from 'fs';
 
 const {misc: {cronTime}} = config;
 let isJobRunning = false;
@@ -12,6 +13,12 @@ const start = () => {
         return;
     } else {
         isJobRunning = true;
+    }
+    if(!fs.existsSync('temp')) {
+        fs.mkdirSync('./temp');
+    } else {
+        fs.rmSync('./temp', {recursive: true});
+        fs.mkdirSync('./temp');
     }
     const imap = ImapInstanse;
     imap.once('ready', () => {

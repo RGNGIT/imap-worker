@@ -1,9 +1,9 @@
 import approRxSecureReader from './approRxSecureReader';
 import p from 'puppeteer';
-import virtualScreen from './virtualScreen';
+import instanses from './instanse';
 
-export default async (url, email) => {
-    const vs = virtualScreen();
+export default async (url, email, dir) => {
+    const vs = instanses.virtualCanvas;
     const browser = await p.launch({
         headless: true,
         defaultViewport: null,
@@ -22,5 +22,5 @@ export default async (url, email) => {
         }
     });
     */
-    return await approRxSecureReader(email, page, browser);
+    return await approRxSecureReader(email, page, browser, dir);
 }
