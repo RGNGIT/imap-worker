@@ -7,7 +7,8 @@ const {
     DB_PAYMENTS_USERNAME,
     DB_PAYMENTS_PASSWORD,
     S3_FOLDER,
-    S3_BUCKET
+    S3_BUCKET, 
+    TEMP_FOLDER
 } = process.env;
 
 export default {
@@ -20,5 +21,8 @@ export default {
     },
     s3: {
         s3Bucket: S3_BUCKET
+    },
+    misc: {
+        tempFolder: TEMP_FOLDER
     }
 }
