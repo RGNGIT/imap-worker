@@ -9,6 +9,8 @@ const {s3: {
     }, misc: {
         compressedExts,
         tempLocalDir
+    }, statuses: {
+        readyForParsing
     }} = config;
 
 const FileStore = new s3();
@@ -47,7 +49,7 @@ class FileProcessor {
                     await FileStore.putData(`${s3Folder}/Maxor/${mId}${
                          file.path
                     }`, await this.streamToBuffer(file));
-                    await FileLog(file.path, email.from[0], 0);
+                    await FileLog(file.path, email.from[0], readyForParsing);
                 }
                 });
                 stream.once('end', () => {
@@ -68,7 +70,7 @@ class FileProcessor {
                     await FileStore.putData(`${s3Folder}/ApproRx/${mId}${
                          file.path
                     }`, await this.streamToBuffer(file));
-                    await FileLog(file.path, email.from[0], 0);
+                    await FileLog(file.path, email.from[0], readyForParsing);
                 }
                 });
                 stream.once('end', () => {

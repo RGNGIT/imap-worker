@@ -41,6 +41,11 @@ export default {
         host: IMAP_HOST,
         tls: IMAP_TLS === 'true'
     },
+    statuses: {
+        readyForParsing: 0,
+        parsed: 1,
+        parsingError: 2
+    },
     misc: {
         compressedExts: compressedExts,
         skipMimes: skipMimes,

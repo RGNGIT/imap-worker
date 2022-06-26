@@ -11,6 +11,8 @@ const {misc: {
         skipMimes,
         electedProviders,
         tempLocalDir
+    }, statuses: {
+        readyForParsing
     }} = config;
 
 function checkIncludesProvider(stringToCheck): string {
@@ -63,7 +65,7 @@ class EmailParser {
                 const mimes = att.contentType.split('/');
                 if (!skipMimes.includes(mimes[0]) && !skipMimes.includes(mimes[1])) {
                     await FileProcessor.writeAttachment(att);
-                    await FileLog(att.fileName, `${mail.from[0].name} <${mail.from[0].address}>`, 0);
+                    await FileLog(att.fileName, `${mail.from[0].name} <${mail.from[0].address}>`, readyForParsing);
                 }
             } catch (e) {
                 console.log(`An error occured while writing attachment (${
