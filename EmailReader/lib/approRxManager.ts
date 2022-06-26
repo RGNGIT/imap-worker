@@ -56,7 +56,7 @@ class ApproRxManager {
         if (await this.waitFile(this.path)) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path);
-            await fileProcessor.writeToApproRx(readStream, this.dir);
+            await fileProcessor.writeToApproRx(readStream, this.dir, email);
             fs.unlinkSync(this.path);
             await browser.close();
         }

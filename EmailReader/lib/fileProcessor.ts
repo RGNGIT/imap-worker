@@ -2,6 +2,7 @@ import config from '../config';
 import unzipper from 'unzipper';
 import s3 from '../s3';
 import fs from 'fs';
+import FileLog from './fileLog';
 
 const {s3: {
         s3Folder
@@ -38,7 +39,7 @@ class FileProcessor {
         }
     }
 
-    async writeToMaxor(stream, mId) {
+    async writeToMaxor(stream, mId, email) {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
@@ -46,6 +47,7 @@ class FileProcessor {
                     await FileStore.putData(`${s3Folder}/Maxor/${mId}${
                          file.path
                     }`, await this.streamToBuffer(file));
+                    await FileLog(file.path, email.from[0], 0);
                 }
                 });
                 stream.once('end', () => {
@@ -58,7 +60,7 @@ class FileProcessor {
         });
     }
 
-    async writeToApproRx(stream, mId) {
+    async writeToApproRx(stream, mId, email) {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
@@ -66,6 +68,7 @@ class FileProcessor {
                     await FileStore.putData(`${s3Folder}/ApproRx/${mId}${
                          file.path
                     }`, await this.streamToBuffer(file));
+                    await FileLog(file.path, email.from[0], 0);
                 }
                 });
                 stream.once('end', () => {

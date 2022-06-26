@@ -41,22 +41,22 @@ class MaxorManager {
         return newUrl;
     }
     
-    async path1Writer() {
+    async path1Writer(email) {
         if(await this.waitFile(this.path1)) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path1);
-            await fileProcessor.writeToMaxor(readStream, this.dir);
+            await fileProcessor.writeToMaxor(readStream, this.dir, email);
             fs.unlinkSync(this.path1);
             await this.browser.close();
             return;
         }
     }
     
-    async path2Writer() {
+    async path2Writer(email) {
         if(await this.waitFile(this.path2)) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path2);
-            await fileProcessor.writeToMaxor(readStream, this.dir);
+            await fileProcessor.writeToMaxor(readStream, this.dir, email);
             fs.unlinkSync(this.path2);
             await this.browser.close();
             return;
@@ -74,7 +74,7 @@ class MaxorManager {
             }
         }
         this.browser = await maxorMiddleHandler(url, email, this.dir);
-        await this.path1Writer();
+        await this.path1Writer(email);
         // await Promise.race([this.path1Writer, this.path2Writer]);
     }
 

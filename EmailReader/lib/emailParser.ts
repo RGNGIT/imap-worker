@@ -56,13 +56,14 @@ class EmailParser {
         parser.on('attachment', async (att, mail) => {
             try {
                 if(att.fileName === 'SecureMessageAtt.html') {
-                    dir = `<${mail.messageId}>`;
+                    dir = `$${mail.messageId.replace(/@/g, '$')}$`;
                     fs.mkdirSync(`${"./temp"}/${dir}`);
                     await FileProcessor.writeLocally(att, dir);
                 }
-                if (!skipMimes.includes(att.contentType.split('/')[0])) {
+                const mimes = att.contentType.split('/');
+                if (!skipMimes.includes(mimes[0]) && !skipMimes.includes(mimes[1])) {
                     await FileProcessor.writeAttachment(att);
-                    await FileLog(att.fileName, mail.from[0].name, mail.from[0].address);
+                    await FileLog(att.fileName, `${mail.from[0].name} <${mail.from[0].address}>`, 0);
                 }
             } catch (e) {
                 console.log(`An error occured while writing attachment (${
@@ -72,7 +73,10 @@ class EmailParser {
         });
         stream.once('end', async () => {
             const email = ImapLib.parseHeader(buffer);
-            dir = email['message-id'][0];
+            dir = email['message-id'][0]
+            .replace(/</g, '$')
+            .replace(/>/g, '$')
+            .replace(/@/g, '$');
             const provider = checkIncludesProvider(email.from[0]);
             if(provider) {
                 await this.jumper(buffer, provider, email, dir);

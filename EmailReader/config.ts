@@ -20,7 +20,7 @@ const {
 } = process.env;
 
 const compressedExts = ['zip'];
-const skipMimes = ['image'];
+const skipMimes = ['image', 'html'];
 const electedProviders = ['maxor', 'approrx']
 
 export default {
