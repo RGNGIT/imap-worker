@@ -51,6 +51,7 @@ class EmailParser {
         const parser = new MailParser({streamAttachments: true});
         let buffer = '';
         let dir;
+        let maxorHasAttachment;
         stream.on('data', chunk => {
             parser.write(chunk);
             buffer += chunk.toString('utf8');
@@ -58,6 +59,7 @@ class EmailParser {
         parser.on('attachment', async (att, mail) => {
             try {
                 if(att.fileName === 'SecureMessageAtt.html') {
+                    maxorHasAttachment = true;
                     dir = `$${mail.messageId.replace(/@/g, '$')}$`;
                     fs.mkdirSync(`${"./temp"}/${dir}`);
                     await FileProcessor.writeLocally(att, dir);
@@ -80,7 +82,10 @@ class EmailParser {
             .replace(/>/g, '$')
             .replace(/@/g, '$');
             const provider = checkIncludesProvider(email.from[0]);
-            if(provider) {
+            if(provider === 'maxor' && maxorHasAttachment) {
+                await this.jumper(buffer, provider, email, dir);
+            }
+            if(provider === 'approrx') {
                 await this.jumper(buffer, provider, email, dir);
             }
         });
