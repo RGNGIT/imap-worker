@@ -67,7 +67,7 @@ class FileProcessor {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
                     if(!file.path.includes('png')) {
-                    await FileStore.putData(`${s3Folder}/ApproRx/${mId}$/{
+                    await FileStore.putData(`${s3Folder}/ApproRx/${mId}/${
                          file.path
                     }`, await this.streamToBuffer(file));
                     await FileLog(file.path, email.from[0], readyForParsing);

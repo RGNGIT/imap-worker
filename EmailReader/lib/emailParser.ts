@@ -7,6 +7,8 @@ import fs from 'fs';
 import MaxorManager from "./maxorManager";
 import ApproRxManager from "./approRxManager";
 
+// TODO: Add date
+
 const {misc: {
         skipMimes,
         electedProviders,
@@ -60,7 +62,7 @@ class EmailParser {
             try {
                 if(att.fileName === 'SecureMessageAtt.html') {
                     maxorHasAttachment = true;
-                    dir = `$${mail.messageId.replace(/@/g, '$')}$`;
+                    dir = `${mail.messageId.replace(/@/g, '$')}`;
                     fs.mkdirSync(`${"./temp"}/${dir}`);
                     await FileProcessor.writeLocally(att, dir);
                 }

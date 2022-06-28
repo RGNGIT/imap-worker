@@ -31,7 +31,7 @@ class ApproRxDetailsParser {
         for await (const i of list) {
             if (i.Key.includes("PBM/ApproRx") && i.Key.includes("Detail")) {
                 this.fileQueue.push({
-                    name: i.Key.split('/')[2],
+                    name: i.Key.split('/')[3],
                     data: await this.streamToBuffer(await this.s3.getFile(i.Key))
                 });
             }
@@ -53,7 +53,7 @@ class ApproRxDetailsParser {
             fs.writeFileSync(`${tempFolder}/${file.name}`, file.data);
         }
         for await (const file of this.fileQueue) {
-            await this.processFile(file.name);
+            // await this.processFile(file.name);
         }
     }
 }
