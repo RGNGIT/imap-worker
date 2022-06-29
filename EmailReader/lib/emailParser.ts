@@ -7,8 +7,6 @@ import fs from 'fs';
 import MaxorManager from "./maxorManager";
 import ApproRxManager from "./approRxManager";
 
-// TODO: Add date
-
 const {misc: {
         skipMimes,
         electedProviders,
@@ -26,6 +24,30 @@ function checkIncludesProvider(stringToCheck): string {
     return null;
 }
 
+function date(dateString: string) {
+    const splitDate = dateString.split(' ');
+    function getMonth() {
+        switch(splitDate[2]) {
+            case 'Jan': return '01';
+            case 'Feb': return '02';
+            case 'Mar': return '03';
+            case 'Apr': return '04';
+            case 'May': return '05';
+            case 'Jun': return '06';
+            case 'Jul': return '07';
+            case 'Aug': return '08';
+            case 'Sep': return '09';
+            case 'Oct': return '10';
+            case 'Nov': return '11';
+            case 'Dec': return '12';
+        }
+    }
+    function addZero(n : number) {
+      return(n < 10 ? '0' : '') + n;
+    }
+    return `${splitDate[3]}${getMonth()}${addZero(Number(splitDate[1]))}`;
+}
+  
 class EmailParser {
 
     async jumper(buffer, provider, email, dir) {
@@ -62,7 +84,7 @@ class EmailParser {
             try {
                 if(att.fileName === 'SecureMessageAtt.html') {
                     maxorHasAttachment = true;
-                    dir = `${mail.messageId.replace(/@/g, '$')}`;
+                    dir = mail.messageId.replace(/@/g, '$');
                     fs.mkdirSync(`${"./temp"}/${dir}`);
                     await FileProcessor.writeLocally(att, dir);
                 }
@@ -79,9 +101,9 @@ class EmailParser {
         });
         stream.once('end', async () => {
             const email = ImapLib.parseHeader(buffer);
-            dir = email['message-id'][0]
-            .replace(/</g, '$')
-            .replace(/>/g, '$')
+            dir = date(email.date[0]) + '$' + email['message-id'][0]
+            .replace(/</g, '')
+            .replace(/>/g, '')
             .replace(/@/g, '$');
             const provider = checkIncludesProvider(email.from[0]);
             if(provider === 'maxor' && maxorHasAttachment) {
