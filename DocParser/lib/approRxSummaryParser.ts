@@ -53,7 +53,7 @@ class ApproRxSummaryParser {
         const pdf = await waitForPDF() as {pages: {texts: Array<string>}};
         await seq.query(`INSERT INTO pbm.summary 
         (file_name, pbm_name, group_number, group_name, invc_number, invc_period_begin_date, invc_period_end_date, rx_plan, rx_division, prescription_cost, fee_desc_1, fee_amt_1, fee_desc_2, fee_amt_2, fee_desc_3, fee_amt_3, fee_desc_4, fee_amt_4, fee_desc_5, fee_amt_5, total_invoice_amt) 
-        VALUES ('${file}', 'ApproRx', null, null, '${pdf.pages[0].texts[2].text}', '${pdf.pages[0].texts[7].text.split('-')[0]}', '${pdf.pages[0].texts[7].text.split('-')[1]}', null, null, null, null, null, null, null, null, null, null, null, null, null, '${pdf.pages[0].text.texts[41]}');`);
+        VALUES ('${file}', 'ApproRx', null, null, '${pdf.pages[0].texts[2].text}', '${pdf.pages[0].texts[7].text.split('-')[0]}', '${pdf.pages[0].texts[7].text.split('-')[1]}', null, null, null, null, null, null, null, null, null, null, null, null, null, '${pdf.pages[0].texts[41].text.replace(/,/g, '').replace('$', '')}');`);
     }
 
     async parseAll() {
