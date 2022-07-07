@@ -12,9 +12,9 @@ const start = async () => {
         fs.mkdirSync('./temp');
     }
     /// await new ApproRxDetailsParser().parseAll();
-    await new ApproRxSummaryParser().parseAll();
+    /// await new ApproRxSummaryParser().parseAll();
     // await new MaxorDetailsParser().parseAll();
-    // await new MaxorSummaryParser().parseAll();
+    await new MaxorSummaryParser().parseAll();
 }
 
 start();

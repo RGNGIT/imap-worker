@@ -80,13 +80,13 @@ async processXlsFile(file) {
 }
 
 async processPdfFile(file) {
-    async function waitForPDF() {
-        return new Promise(async (resolve, reject) => {
+    const waitForPDF = async () => {
+        return new Promise((resolve, reject) => {
             pdfParser.pdf2json(`${tempFolder}/${
                 file.dirName
             }/${
                 file.name
-            }`, async (err, pdf) => {
+            }`, (err, pdf) => {
                 resolve(pdf);
             });
         });
