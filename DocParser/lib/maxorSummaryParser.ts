@@ -12,11 +12,35 @@ const { misc: {
 const findValueByField = (textArray, fieldName, offset) => {
     const defaultOffset = 1;
     for(let i = 0; i < textArray.length; i++) {
-        if(textArray[i].text == fieldName) {
-            return textArray[i + defaultOffset + offset].text;
+        if(textArray[i].text == fieldName || textArray[i].text.includes(fieldName)) {
+            return {value: textArray[i + defaultOffset + offset].text, index: i};
         }
     }
     return null;
+}
+
+const indexUntil = (textArray, fromName, toName) => {
+    let indexFrom = null, indexTo = null;
+    console.log(findValueByField(textArray, fromName, 0));
+    for(let i = 0; i < textArray.length; i++) {
+        if(findValueByField(textArray, fromName, 0).value.includes(fromName)) {
+            indexFrom = findValueByField(textArray, fromName, 0).index;
+        }
+        if(findValueByField(textArray, toName, 0).value.includes(toName)) {
+            indexTo = findValueByField(textArray, toName, 0).index;
+        }
+    }
+    if(indexFrom && indexTo) {
+        return indexFrom > indexTo ? Math.abs(indexFrom - indexTo) * -1 : Math.abs(indexFrom - indexTo);
+    } else {
+        return null;
+    }
+}
+
+const fetchDocType = (filename) => {
+    const dashSplit = filename.split('-')[1];
+    const underscoreSplit = dashSplit.split('_')[0];
+    return underscoreSplit;
 }
 
 class MaxorSummaryParser {
@@ -51,6 +75,29 @@ class MaxorSummaryParser {
         }
     }
 
+    async processAR01C(file, pages) {
+        let i = 0;
+        for await(const page of pages) {
+            const fromBillToName = indexUntil(page.texts, 'Bill To:', 'Billing Period');
+            // console.log(fromBillToName);
+            for await(const chunk of page.texts) {
+                // console.log(`INSERT INTO pbm.summary (file_name, pbm_name, group_number, group_name, invc_number, invc_period_begin_date, invc_period_end_date, rx_plan, rx_division, prescription_cost, fee_desc_1, fee_amt_1, fee_desc_2, fee_amt_2, fee_desc_3, fee_amt_3, fee_desc_4, fee_amt_4, fee_desc_5, fee_amt_5, total_invoice_amt) 
+                // VALUES ('${file.name}', 'Maxor', '');`);
+            }
+        }
+    } 
+
+    async processAR03C(file, pages) {
+        let i = 0;
+        for await(const page of pages) {
+            for await(const chunk of page.texts) {
+                console.log(chunk.text + '//' + i++);
+                // console.log(`INSERT INTO pbm.summary (file_name, pbm_name, group_number, group_name, invc_number, invc_period_begin_date, invc_period_end_date, rx_plan, rx_division, prescription_cost, fee_desc_1, fee_amt_1, fee_desc_2, fee_amt_2, fee_desc_3, fee_amt_3, fee_desc_4, fee_amt_4, fee_desc_5, fee_amt_5, total_invoice_amt) 
+                // VALUES ('${file.name}', 'Maxor', '');`);
+            }
+        }
+    }
+
     async processFile(file) {
         const waitForPDF = async () => {
             return new Promise((resolve, reject) => {
@@ -67,13 +114,11 @@ class MaxorSummaryParser {
             } >
         };
         const pages = pdf.pages;
-        let i = 0;
-        for await(const page of pages) {
-            for await(const chunk of page.texts) {
-                console.log(chunk.text + '//' + i++);
-                // console.log(`INSERT INTO pbm.summary (file_name, pbm_name, group_number, group_name, invc_number, invc_period_begin_date, invc_period_end_date, rx_plan, rx_division, prescription_cost, fee_desc_1, fee_amt_1, fee_desc_2, fee_amt_2, fee_desc_3, fee_amt_3, fee_desc_4, fee_amt_4, fee_desc_5, fee_amt_5, total_invoice_amt) 
-                // VALUES ('${file.name}', 'Maxor', '');`);
-            }
+        const docType = fetchDocType(file.name);
+        switch(docType) {
+            case 'AR01C': this.processAR01C(file, pages); break;
+            // case 'AR03C': this.processAR03C(file, pages); break;
+            default: console.log(`No processor for this type of document (${file.name}, ${docType})`); break;
         }
     }
 
