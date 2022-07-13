@@ -29,7 +29,7 @@ class ApproRxManager {
         });
     }
 
-    fixUrl(line1, line2, line3) {
+    fixUrlCase1(line1, line2, line3) {
         const formattedLine1 = line1.split('<')[1];
         const formattedLine3 = line3.split('>')[0];
         const url1 = formattedLine1.slice(0, formattedLine1.length - 2);
@@ -39,6 +39,10 @@ class ApproRxManager {
         return newUrl;
     }
 
+    fixUrlCase2(line1) {
+        return line1;
+    }
+
     async process(buffer, email) {
         if (!fs.existsSync(`${"./temp"}/${this.dir}`)) {
             fs.mkdirSync(`${"./temp"}/${this.dir}`);
@@ -46,9 +50,15 @@ class ApproRxManager {
         const stringifiedMail = buffer;
         const splitMail = stringifiedMail.split('\n');
         let url;
+        const writer = fs.createWriteStream('tmp.txt');
         for (let i = 0; i < splitMail.length; i++) {
+            writer.write(splitMail[i]);
             if (splitMail[i].includes('View Message')) {
-                url = this.fixUrl(splitMail[i], splitMail[i + 1], splitMail[i + 2]);
+                url = this.fixUrlCase1(splitMail[i], splitMail[i + 1], splitMail[i + 2]);
+                break;
+            }
+            if(splitMail[i].includes('approrx.sharefile.com')) {
+                url = this.fixUrlCase2(splitMail[i]);
                 break;
             }
         }
@@ -58,7 +68,7 @@ class ApproRxManager {
             const readStream = fs.createReadStream(this.path);
             await fileProcessor.writeToApproRx(readStream, this.dir, email);
             fs.unlinkSync(this.path);
-            await browser.close();
+            // await browser.close();
         }
     }
 }

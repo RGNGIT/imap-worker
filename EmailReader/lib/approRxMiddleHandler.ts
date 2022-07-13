@@ -1,10 +1,11 @@
-import approRxSecureReader from './approRxSecureReader';
+import approRxSecureReaderCase1 from './approRxSecureReaderCase1';
+import approRxSecureReaderCase2 from './approRxSecureReaderCase2';
 import p from 'puppeteer';
 import instanses from './instanse';
 
 export default async (url, email, dir) => {
     const browser = await p.launch({
-        headless: true,
+        headless: false,
         defaultViewport: null,
         // executablePath: '/usr/bin/google-chrome',
         // args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + instanses.virtualCanvas._display]
@@ -21,5 +22,14 @@ export default async (url, email, dir) => {
         }
     });
     */
-    return await approRxSecureReader(email, page, browser, dir);
+    const cases = [approRxSecureReaderCase1, approRxSecureReaderCase2];
+    for(const currentCase of cases) {
+        const runningCase = await currentCase(email, page, browser, dir);
+        if(runningCase) {
+            return runningCase;
+        } else {
+            continue;
+        }
+    }
+    return browser;
 }

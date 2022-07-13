@@ -1,32 +1,35 @@
 import config from '../config';
+import p from 'puppeteer';
 import fs from 'fs';
 
 const path = require("path");
 
-const { misc: { maxorPassword, tempLocalDir } } = config;
+const {
+    misc: {
+        maxorPassword,
+        tempLocalDir
+    }
+} = config;
 
-export default async (email, page, browser, dir) => {
+export default async (email, page : p.Page, browser : p.Browser, dir : string) => {
     try {
+        const client = await page.target().createCDPSession();
+        await client.send('Page.setDownloadBehavior', {
+            behavior: 'allow',
+            downloadPath: `${tempLocalDir}/${dir}`
+        });
         const absPath = path.resolve(`./${"./temp"}/${dir}/page.html`);
         await page.goto('file://' + absPath);
-        await page.evaluate(() => {
-            document.getElementsByName('submitButton')[0].click();
-        });
-        await page.waitForNavigation();
-        const client = await page.target().createCDPSession();
-        await client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: `${tempLocalDir}/${dir}` });
-        await page.evaluate(() => {
-            document.getElementById('dialog:password').setAttribute('value', 'pL3^769fokZ5Lx');
-            document.getElementById('dialog:continueButton').click();
-        });
-        await page.waitForNavigation();
-        await page.evaluate(() => {
-            try {
-                document.getElementById('inbox:downloadZipButton').click();
-            } catch {
-                document.getElementById('readTB:downloadZipButton').click();
-            }
-        });
+        const enterBtn = await page.$<HTMLButtonElement>('[name="submitButton"]');
+        await enterBtn.click();
+        await page.waitForSelector('#dialog:password');
+        const dialogPassword = await page.$<HTMLInputElement>('#dialog:password');
+        const dialogBtn = await page.$<HTMLButtonElement>('#dialog:continueButton');
+        await dialogPassword.type(maxorPassword);
+        await dialogBtn.click();
+        await page.waitForSelector('#readTB:downloadZipButton');
+        const downloadBtn = await page.$<HTMLButtonElement>('#readTB:downloadZipButton');
+        await downloadBtn.click();
         return browser;
     } catch (e) {
         console.log(`Error while processaing expired Maxor mail. Code: ${e}`);

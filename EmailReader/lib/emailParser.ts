@@ -24,7 +24,7 @@ function checkIncludesProvider(stringToCheck): string {
     return null;
 }
 
-function date(dateString: string) {
+function getFormattedDateFromEmail(dateString: string) {
     const splitDate = dateString.split(' ');
     function getMonth() {
         switch(splitDate[2]) {
@@ -101,7 +101,7 @@ class EmailParser {
         });
         stream.once('end', async () => {
             const email = ImapLib.parseHeader(buffer);
-            dir = date(email.date[0]) + '$' + email['message-id'][0]
+            dir = getFormattedDateFromEmail(email.date[0]) + '$' + email['message-id'][0]
             .replace(/</g, '')
             .replace(/>/g, '')
             .replace(/@/g, '$');
