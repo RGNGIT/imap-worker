@@ -26,7 +26,7 @@ function checkIncludesProvider(stringToCheck): string {
 
 function getFormattedDateFromEmail(dateString: string) {
     const splitDate = dateString.split(' ');
-    function getMonth() {
+    const getMonth = () => {
         switch(splitDate[2]) {
             case 'Jan': return '01';
             case 'Feb': return '02';
@@ -42,7 +42,7 @@ function getFormattedDateFromEmail(dateString: string) {
             case 'Dec': return '12';
         }
     }
-    function addZero(n : number) {
+    const addZero = (n : number) => {
       return(n < 10 ? '0' : '') + n;
     }
     return `${splitDate[3]}${getMonth()}${addZero(Number(splitDate[1]))}`;
@@ -85,7 +85,7 @@ class EmailParser {
                 if(att.fileName === 'SecureMessageAtt.html') {
                     maxorHasAttachment = true;
                     dir = mail.messageId.replace(/@/g, '$');
-                    fs.mkdirSync(`${"./temp"}/${dir}`);
+                    fs.mkdirSync(`${tempLocalDir}/${dir}`);
                     await FileProcessor.writeLocally(att, dir);
                 }
                 const mimes = att.contentType.split('/');

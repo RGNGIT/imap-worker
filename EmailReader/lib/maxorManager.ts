@@ -3,20 +3,20 @@ import maxorMiddleHandler from './maxorMiddleHandler';
 import config from '../config';
 import fs from 'fs';
 
-const { misc: { maxorPassword, tempLocalDir } } = config;
+const { misc: { tempLocalDir } } = config;
 
 class MaxorManager {
 
     constructor(dir) {
-        this.dir = dir;
-        this.path1 = `${"./temp"}/${dir}/Lucent Health.zip`;
-        this.path2 = `${"./temp"}/${dir}/Lucent Health Invoices.zip`;
+        this.dir = `${dir.split('$')[1]}$${dir.split('$')[2]}`;
+        this.path1 = `${tempLocalDir}/${dir}/Lucent Health.zip`;
+        this.path2 = `${tempLocalDir}/${dir}/Lucent Health Invoices.zip`;
     }
 
-    path1;
-    path2;
-    dir;
-    browser;
+    private path1;
+    private path2;
+    private dir;
+    private browser;
     
     delay = time => new Promise(res => setTimeout(res, time));
     
@@ -42,7 +42,9 @@ class MaxorManager {
     }
     
     async path1Writer(email) {
-        if(await this.waitFile(this.path1)) {
+        if(await this.waitFile(this.path1).catch(err => {
+            console.log(`Maxor file waiter has failed. Code: ${err}`);
+        })) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path1);
             await fileProcessor.writeToMaxor(readStream, this.dir, email);
@@ -53,7 +55,9 @@ class MaxorManager {
     }
     
     async path2Writer(email) {
-        if(await this.waitFile(this.path2)) {
+        if(await this.waitFile(this.path2).catch(err => {
+            console.log(`Maxor file waiter has failed. Code: ${err}`);
+        })) {
             const fileProcessor = new FileProcessor();
             const readStream = fs.createReadStream(this.path2);
             await fileProcessor.writeToMaxor(readStream, this.dir, email);

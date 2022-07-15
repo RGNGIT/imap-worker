@@ -9,11 +9,14 @@ class ApproRxManager {
 
     constructor(dir) {
         this.dir = dir;
-        this.path = `${'./temp'}/${dir}/all.zip`;
+        this.path = `${tempLocalDir}/${dir}/`;
     }
 
-    path;
-    dir;
+    private dynPathIndex;
+    private path;
+    private dir;
+
+    private zipNames = ['all.zip', 'Files.zip'];
 
     delay = time => new Promise(res => setTimeout(res, time));
 
@@ -44,8 +47,8 @@ class ApproRxManager {
     }
 
     async process(buffer, email) {
-        if (!fs.existsSync(`${"./temp"}/${this.dir}`)) {
-            fs.mkdirSync(`${"./temp"}/${this.dir}`);
+        if (!fs.existsSync(`${tempLocalDir}/${this.dir}`)) {
+            fs.mkdirSync(`${tempLocalDir}/${this.dir}`);
         }
         const stringifiedMail = buffer;
         const splitMail = stringifiedMail.split('\n');
@@ -54,21 +57,30 @@ class ApproRxManager {
         for (let i = 0; i < splitMail.length; i++) {
             writer.write(splitMail[i]);
             if (splitMail[i].includes('View Message')) {
+                this.dynPathIndex = 0;
                 url = this.fixUrlCase1(splitMail[i], splitMail[i + 1], splitMail[i + 2]);
                 break;
             }
             if(splitMail[i].includes('approrx.sharefile.com')) {
+                this.dynPathIndex = 1;
                 url = this.fixUrlCase2(splitMail[i]);
                 break;
             }
         }
         const browser = await approRxMiddleHandler(url, email, this.dir);
-        if (await this.waitFile(this.path)) {
-            const fileProcessor = new FileProcessor();
-            const readStream = fs.createReadStream(this.path);
-            await fileProcessor.writeToApproRx(readStream, this.dir, email);
-            fs.unlinkSync(this.path);
-            // await browser.close();
+        if(this.dynPathIndex) {
+            const fullPath = this.path + this.zipNames[this.dynPathIndex];
+            if (await this.waitFile(fullPath).catch(err => {
+                console.log(`ApproRx file waiter has failed. Code: ${err}`);
+            })) {
+                const fileProcessor = new FileProcessor();
+                const readStream = fs.createReadStream(fullPath);
+                await fileProcessor.writeToApproRx(readStream, this.dir, email);
+                fs.unlinkSync(fullPath);
+                await browser.close();
+            }
+        } else {
+            console.log('ApproRx file index has not been set. Probably problem with email');
         }
     }
 }

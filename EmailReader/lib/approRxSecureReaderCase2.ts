@@ -1,21 +1,35 @@
 import p from 'puppeteer';
 import config from '../config';
 
+const {
+    misc: {
+        tempLocalDir,
+        approrx2Password
+    }, imap: {
+        user
+    }
+} = config;
+
 export default async (email, page : p.Page, browser : p.Browser, dir : string) => {
     try {
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
-            downloadPath: `${"./temp"}/${dir}`
+            downloadPath: `${tempLocalDir}/${dir}`
         });
-        await page.waitForSelector('#credentials-email');
-        const credEmail = await page.$<HTMLInputElement>('#credentials-email');
-        const credPassword = await page.$<HTMLInputElement>('#credentials-password');
-        const confirmBtn = await page.$<HTMLButtonElement>('#start-button');
-        await credEmail.type('attachmentmonitoring@lucenthealth.com');
-        await credPassword.type('gV2xgM7xkN0xmH8@');
+        await page.waitForSelector('[id="credentials-email"]');
+        const credEmail = await page.$<HTMLInputElement>('[id="credentials-email"]');
+        const credPassword = await page.$<HTMLInputElement>('[id="credentials-password"]');
+        const confirmBtn = await page.$<HTMLButtonElement>('[id="start-button"]');
+        await credEmail.type(user);
+        await credPassword.type(approrx2Password);
         await confirmBtn.click();
-        // TBA
+        // await page.waitForSelector('[tabindex="-1"]');
+        // await page.waitForNavigation({waitUntil: 'domcontentloaded'});
+        await page.waitForTimeout(10000);
+        await page.evaluate(() => {
+            document.querySelectorAll('button')[0].click();
+        });
         return browser;
     } catch (e) {
         console.log(`Error while processing ApproRx mail (case2). Email from ${

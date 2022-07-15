@@ -16,12 +16,13 @@ const {
     S3_FOLDER,
     MAXOR_PASSWORD,
     TEMP_LOCAL_DIR,
-    APPRORX_PASSWORD
+    APPRORX_PASSWORD,
+    APPRORX_PASSWORD_2
 } = process.env;
 
 const compressedExts = ['zip'];
 const skipMimes = ['image', 'html'];
-const electedProviders = ['maxor', 'approrx']
+const electedProviders = ['maxor', 'approrx', 'southernscripts', 'magellan']
 
 export default {
     sequelizeConfig: {
@@ -53,6 +54,7 @@ export default {
         maxorPassword: MAXOR_PASSWORD,
         tempLocalDir: TEMP_LOCAL_DIR,
         approrxPassword: APPRORX_PASSWORD,
-        electedProviders: electedProviders
+        electedProviders: electedProviders,
+        approrx2Password: APPRORX_PASSWORD_2
     }
 }

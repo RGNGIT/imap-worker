@@ -18,18 +18,19 @@ export default async (email, page : p.Page, browser : p.Browser, dir : string) =
             behavior: 'allow',
             downloadPath: `${tempLocalDir}/${dir}`
         });
-        const absPath = path.resolve(`./${"./temp"}/${dir}/page.html`);
+        const absPath = path.resolve(`./${tempLocalDir}/${dir}/page.html`);
         await page.goto('file://' + absPath);
         const enterBtn = await page.$<HTMLButtonElement>('[name="submitButton"]');
         await enterBtn.click();
-        await page.waitForSelector('#dialog:password');
-        const dialogPassword = await page.$<HTMLInputElement>('#dialog:password');
-        const dialogBtn = await page.$<HTMLButtonElement>('#dialog:continueButton');
+        await page.waitForTimeout(10000);
+        const dialogPassword = await page.$<HTMLInputElement>('[id="dialog:password"]');
+        const dialogBtn = await page.$<HTMLButtonElement>('[id="dialog:continueButton"]');
         await dialogPassword.type(maxorPassword);
         await dialogBtn.click();
-        await page.waitForSelector('#readTB:downloadZipButton');
-        const downloadBtn = await page.$<HTMLButtonElement>('#readTB:downloadZipButton');
-        await downloadBtn.click();
+        await page.waitForTimeout(10000);
+        await page.evaluate(() => {
+            (<HTMLButtonElement>document.getElementById('readTB:downloadZipButton')).click();
+        });
         return browser;
     } catch (e) {
         console.log(`Error while processaing expired Maxor mail. Code: ${e}`);

@@ -13,14 +13,17 @@ export default async (email, page : p.Page, browser : p.Browser, dir : string) =
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
-            downloadPath: `${"./temp"}/${dir}`
+            downloadPath: `${tempLocalDir}/${dir}`
         });
         const passwordField = await page.$<HTMLInputElement>('[name="password"]');
         await passwordField.type(approrxPassword);
         const loginBtn = await page.$<HTMLInputElement>('[name="cmd_login"]');
         await loginBtn.click();
-        const hrefs = await page.$$<HTMLButtonElement>('a');
-        await hrefs[hrefs.length - 2].click();
+        await page.waitForTimeout(10000);
+        await page.evaluate(() => {
+            const hrefs = document.querySelectorAll('a');
+            hrefs[hrefs.length - 2].click();
+        });
         return browser;
     } catch (e) {
         console.log(`Error while processing ApproRx mail (case1). Email from ${

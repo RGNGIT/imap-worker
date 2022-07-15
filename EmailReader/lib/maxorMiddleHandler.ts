@@ -12,7 +12,7 @@ const {
 
 export default async (url, email, dir) => {
     const browser = await p.launch({
-        headless: true, defaultViewport: null,
+        headless: false, defaultViewport: null,
         // executablePath: '/usr/bin/google-chrome',
         // args: ['--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox', '--start-fullscreen', '--display=' + instanses.virtualCanvas._display]
     });
@@ -22,16 +22,17 @@ export default async (url, email, dir) => {
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
-            downloadPath: `${"./temp"}/${dir}`
+            downloadPath: `${tempLocalDir}/${dir}`
         });
-        await page.waitForSelector('#dialog:password');
-        const dialogPassword = await page.$<HTMLInputElement>('#dialog:password');
-        const dialogBtn = await page.$<HTMLButtonElement>('#dialog:continueButton');
+        await page.waitForTimeout(10000);
+        const dialogPassword = await page.$<HTMLInputElement>('[id="dialog:password"]');
+        const dialogBtn = await page.$<HTMLButtonElement>('[id="dialog:continueButton"]');
         await dialogPassword.type(maxorPassword);
         await dialogBtn.click();
-        await page.waitForSelector('#inbox:downloadZipButton');
-        const inboxDownloadBtn = await page.$<HTMLButtonElement>('#inbox:downloadZipButton');;
-        await inboxDownloadBtn.click();
+        await page.waitForTimeout(10000);
+        await page.evaluate(() => {
+            (<HTMLButtonElement>document.getElementById('inbox:downloadZipButton')).click();
+        });
         return browser;
     } catch (e) { // If expired
         console.log(`Error while processing Maxor mail. Email from ${

@@ -23,11 +23,12 @@ export default async (url, email, dir) => {
     });
     */
     const cases = [approRxSecureReaderCase1, approRxSecureReaderCase2];
-    for(const currentCase of cases) {
+    for await(const currentCase of cases) {
         const runningCase = await currentCase(email, page, browser, dir);
         if(runningCase) {
             return runningCase;
         } else {
+            console.log('Trying another case if exists...');
             continue;
         }
     }
