@@ -53,9 +53,7 @@ class ApproRxManager {
         const stringifiedMail = buffer;
         const splitMail = stringifiedMail.split('\n');
         let url;
-        const writer = fs.createWriteStream('tmp.txt');
         for (let i = 0; i < splitMail.length; i++) {
-            writer.write(splitMail[i]);
             if (splitMail[i].includes('View Message')) {
                 this.dynPathIndex = 0;
                 url = this.fixUrlCase1(splitMail[i], splitMail[i + 1], splitMail[i + 2]);

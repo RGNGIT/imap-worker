@@ -4,27 +4,34 @@ import s3 from '../s3';
 import fs from 'fs';
 import FileLog from './fileLog';
 
-const {s3: {
+const {
+    s3: {
         s3Folder
-    }, misc: {
+    },
+    misc: {
         compressedExts,
         tempLocalDir
-    }, statuses: {
+    },
+    statuses: {
         readyForParsing
-    }} = config;
+    }
+} = config;
 
 const FileStore = new s3();
 
 class FileProcessor {
+
+    delay = time => new Promise(res => setTimeout(res, time));
+
     async writeAttachment(data) {
         if (!this.isZip(data.fileName)) {
             await FileStore.putData(`${s3Folder}/Other/${
-                 data.fileName
+                data.fileName
             }`, await this.streamToBuffer(data.stream));
         } else {
             data.stream.pipe(unzipper.Parse()).on('entry', async (file) => {
                 await FileStore.putData(`${s3Folder}/Other/${
-                     file.path
+                    file.path
                 }`, await this.streamToBuffer(file));
             });
         }
@@ -45,17 +52,17 @@ class FileProcessor {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
-                    if(!file.path.includes('html')) {
-                    await FileStore.putData(`${s3Folder}/Maxor/${mId}/${
-                         file.path
-                    }`, await this.streamToBuffer(file));
-                    await FileLog(file.path, email.from[0], readyForParsing);
-                }
+                    if (!file.path.includes('html')) {
+                        await FileStore.putData(`${s3Folder}/Maxor/${mId}/${
+                            file.path
+                        }`, await this.streamToBuffer(file));
+                        await FileLog(file.path, email.from[0], readyForParsing);
+                    }
                 });
                 stream.once('end', () => {
                     resolve(true);
                 });
-            } catch(e) {
+            } catch (e) {
                 console.log(`Error while writing file to maxor. Code: ${e}`);
                 reject(false);
             }
@@ -66,21 +73,41 @@ class FileProcessor {
         return new Promise((resolve, reject) => {
             try {
                 stream.pipe(unzipper.Parse()).on('entry', async (file) => {
-                    if(!file.path.includes('png')) {
-                    await FileStore.putData(`${s3Folder}/ApproRx/${mId}/${
-                         file.path
-                    }`, await this.streamToBuffer(file));
-                    await FileLog(file.path, email.from[0], readyForParsing);
-                }
+                    if (!file.path.includes('png')) {
+                        await FileStore.putData(`${s3Folder}/ApproRx/${mId}/${
+                            file.path
+                        }`, await this.streamToBuffer(file));
+                        await FileLog(file.path, email.from[0], readyForParsing);
+                    }
                 });
                 stream.once('end', () => {
                     resolve(true);
                 });
-            } catch(e) {
+            } catch (e) {
                 console.log(`Error while writing file to approrx. Code: ${e}`);
                 reject(false);
             }
         })
+    }
+
+    async writeToMagellan(attachment, mId, email) {
+        return new Promise((resolve, reject) => {
+            try {
+                attachment.stream.pipe(unzipper.Parse()).on('entry', async (file) => {
+                    await this.delay(1000);
+                    await FileStore.putData(`${s3Folder}/Magellan/${mId.replaceAll('/', '')}/${
+                        file.path
+                    }`, await this.streamToBuffer(file));
+                    await FileLog(file.path, email, readyForParsing);
+                });
+                attachment.stream.once('end', () => {
+                    resolve(true);
+                });
+            } catch (e) {
+                console.log(`Error while writing file to magellan. Code: ${e}`);
+                reject(false);
+            }
+        });
     }
 
     async writeLocally(data, dir) {

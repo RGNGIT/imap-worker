@@ -39,6 +39,7 @@ export default async (email, page : p.Page, browser : p.Browser, dir : string) =
         }. MessageID: ${
             email['message-id'][0]
         }. Code: ${e}`);
+        await browser.close();
         return null;
     }
 }

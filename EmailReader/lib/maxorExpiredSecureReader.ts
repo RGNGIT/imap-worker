@@ -34,6 +34,7 @@ export default async (email, page : p.Page, browser : p.Browser, dir : string) =
         return browser;
     } catch (e) {
         console.log(`Error while processaing expired Maxor mail. Code: ${e}`);
-        return e;
+        await browser.close();
+        return null;
     }
 }

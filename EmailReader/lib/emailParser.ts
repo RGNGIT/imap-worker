@@ -6,6 +6,7 @@ import FileLog from "./fileLog";
 import fs from 'fs';
 import MaxorManager from "./maxorManager";
 import ApproRxManager from "./approRxManager";
+import MagellanManager from "./magellanManager";
 
 const {misc: {
         skipMimes,
@@ -15,7 +16,7 @@ const {misc: {
         readyForParsing
     }} = config;
 
-function checkIncludesProvider(stringToCheck): string {
+const checkIncludesProvider = (stringToCheck): string => {
     for(const provider of electedProviders) {
         if(stringToCheck.includes(provider)) {
             return provider;
@@ -24,7 +25,7 @@ function checkIncludesProvider(stringToCheck): string {
     return null;
 }
 
-function getFormattedDateFromEmail(dateString: string) {
+const getFormattedDateFromSecureEmail = (dateString: string) => {
     const splitDate = dateString.split(' ');
     const getMonth = () => {
         switch(splitDate[2]) {
@@ -43,11 +44,21 @@ function getFormattedDateFromEmail(dateString: string) {
         }
     }
     const addZero = (n : number) => {
-      return(n < 10 ? '0' : '') + n;
+      return (n < 10 ? '0' : '') + n;
     }
     return `${splitDate[3]}${getMonth()}${addZero(Number(splitDate[1]))}`;
 }
-  
+
+const getFormattedDateFromEmail = (date: Date) => {
+    const addZero = (n : number) => {
+        return(n < 10 ? '0' : '') + n;
+    }
+    const month = addZero(date.getMonth() + 1);
+    const day = addZero(date.getDate());
+    const year = date.getFullYear();
+    return `${year}${month}${day}`;
+}
+
 class EmailParser {
 
     async jumper(buffer, provider, email, dir) {
@@ -58,6 +69,9 @@ class EmailParser {
             case 'approrx':
                 await new ApproRxManager(dir).process(buffer, email);
             break;
+            case 'magellan':
+                await new MagellanManager(dir).process(buffer, email);
+            break;
         }
     }
 
@@ -65,7 +79,7 @@ class EmailParser {
         // console.log(`Processing email ${seqno}...`);
         const prefix = `(#${seqno})`;
         msg.on('body', async (stream, info) => await this.messageProcessor(stream, info));
-        msg.once('end', () => { 
+        msg.once('end', () => {
             // console.log(`Finished processing email ${prefix}`);
         });
     }
@@ -82,6 +96,9 @@ class EmailParser {
         });
         parser.on('attachment', async (att, mail) => {
             try {
+                if(att.fileName.includes('png') || att.fileName.includes('gif')) {
+                    return;
+                }
                 if(att.fileName === 'SecureMessageAtt.html') {
                     maxorHasAttachment = true;
                     dir = mail.messageId.replace(/@/g, '$');
@@ -89,6 +106,11 @@ class EmailParser {
                     await FileProcessor.writeLocally(att, dir);
                 }
                 const mimes = att.contentType.split('/');
+                if(checkIncludesProvider(mail.from[0].address) == 'magellan') {
+                    if(att.fileName.includes('NAA') && att.fileName.includes('.zip')) {
+                        await this.jumper(att, 'magellan', mail, getFormattedDateFromEmail(mail.meta.receivedDate));
+                    }
+                }
                 if (!skipMimes.includes(mimes[0]) && !skipMimes.includes(mimes[1])) {
                     await FileProcessor.writeAttachment(att);
                     await FileLog(att.fileName, `${mail.from[0].name} <${mail.from[0].address}>`, readyForParsing);
@@ -101,7 +123,7 @@ class EmailParser {
         });
         stream.once('end', async () => {
             const email = ImapLib.parseHeader(buffer);
-            dir = getFormattedDateFromEmail(email.date[0]) + '$' + email['message-id'][0]
+            dir = getFormattedDateFromSecureEmail(email.date[0]) + '$' + email['message-id'][0]
             .replace(/</g, '')
             .replace(/>/g, '')
             .replace(/@/g, '$');
